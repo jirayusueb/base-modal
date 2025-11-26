@@ -1,0 +1,310 @@
+---
+alwaysApply: true
+---
+
+# React Component Zoning Practice
+
+## Zone Structure
+
+Organize React components using a consistent zoning pattern for better readability and maintainability.
+
+| Zone                            | Purpose                                | Order               |
+| ------------------------------- | -------------------------------------- | ------------------- |
+| 1. Imports                      | Keep related imports grouped           | Top                 |
+| 2. Types/Interfaces             | Component props, custom types          | Right after imports |
+| 3. Context hooks                | External context dependencies          | 3                   |
+| 4. State (useState, useRef)     | All state at the top                   | 4                   |
+| 5. React Query hooks            | Data fetching (useQuery, useMutation)  | 5                   |
+| 6. Memoized values (useMemo)    | Derived/computed values                | 6                   |
+| 7. Event handlers (useCallback) | Functions passed to children           | 7                   |
+| 8. Effects (useEffect, etc.)    | Side effects                           | 8                   |
+| 9. Early returns / guards       | Loading, error, auth checks            | 9                   |
+| 10. JSX Render                  | Always last — makes logic easy to scan | Bottom              |
+
+## Example
+
+```typescript
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+
+// 1. Types & Interfaces (right after imports)
+interface CounterProps {
+  initialValue?: number;
+  onIncrement?: (value: number) => void;
+}
+
+// 2. Component (with props destructuring + defaults)
+function Counter({ initialValue = 0, onIncrement }: CounterProps) {
+  // 3. Context hooks (external context dependencies)
+  const { user, theme } = useAppContext();
+  const { locale } = useLocaleContext();
+  const router = useRouter();
+  const tCommon = useTranslations("common");
+
+  // 4. State & Ref declarations (grouped logically)
+  const [count, setCount] = useState<number>(initialValue);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
+  // 5. React Query hooks (data fetching)
+  const {
+    data: counterData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["counter", count],
+    queryFn: () => fetchCounterData(count),
+  });
+
+  const incrementMutation = useMutation({
+    mutationFn: (newCount: number) => updateCounter(newCount),
+    onSuccess: () => {
+      // Handle success
+    },
+  });
+
+  // 6. Derived state / memoized values (useMemo)
+  const isEven = useMemo(() => count % 2 === 0, [count]);
+  const doubleCount = useMemo(() => count * 2, [count]);
+
+  // 7. Event handlers (useCallback-wrapped for performance)
+  const handleIncrement = useCallback(() => {
+    setCount((prev) => prev + 1);
+    setIsAnimating(true);
+    onIncrement?.(count + 1);
+  }, [count, onIncrement]);
+
+  const handleDecrement = useCallback(() => {
+    setCount((prev) => prev - 1);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setCount(initialValue);
+  }, [initialValue]);
+
+  const handleNavigate = useCallback(() => {
+    router.push("/dashboard");
+  }, [router]);
+
+  // 8. Side effects (useEffect, useLayoutEffect)
+  useEffect(() => {
+    const timer = setTimeout(() => setIsAnimating(false), 300);
+    return () => clearTimeout(timer);
+  }, [count]);
+
+  // 9. Early returns / guards (loading, error, auth checks)
+  if (isLoading) {
+    return <div>{tCommon("loading")}</div>;
+  }
+  if (error) {
+    return (
+      <div>
+        {tCommon("error")}: {error.message}
+      </div>
+    );
+  }
+
+  // 10. Render / JSX (always last)
+  return (
+    <div className="counter">
+      <h2>
+        {tCommon("counter.title")}: {count}
+      </h2>
+
+      <div className="stats">
+        <p>
+          {tCommon("counter.double")}: {doubleCount}
+        </p>
+        <p>
+          {tCommon("counter.parity")}:{" "}
+          {isEven ? tCommon("counter.even") : tCommon("counter.odd")}
+        </p>
+      </div>
+
+      <div className={`display ${isAnimating ? "animate" : ""}`}>{count}</div>
+
+      <div className="buttons">
+        <button onClick={handleDecrement}>-</button>
+        <button onClick={handleReset}>{tCommon("reset")}</button>
+        <button onClick={handleIncrement}>+</button>
+        <button onClick={handleNavigate}>{tCommon("navigate")}</button>
+      </div>
+
+      <style jsx>{`
+        .display {
+          transition: transform 0.2s;
+        }
+        .animate {
+          transform: scale(1.3);
+        }
+        .buttons button {
+          margin: 0 8px;
+          padding: 8px 16px;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+## Zone Details
+
+### Zone 3: Context Hooks
+
+Context hooks should be placed early in the component, right after types/interfaces and before local state. This makes external dependencies clear and helps identify what context the component relies on.
+
+```typescript
+// 3. Context hooks (external context dependencies)
+const { user, theme } = useAppContext();
+const { locale } = useLocaleContext();
+const router = useRouter();
+const { t } = useTranslations("namespace");
+```
+
+**Routing Hooks (`useRouter`):**
+
+Routing hooks from Next.js should be placed in Zone 3 alongside other context hooks. Use the standard variable name `router` for consistency.
+
+```typescript
+// 3. Context hooks (external context dependencies)
+// Next.js App Router (next/navigation)
+const router = useRouter();
+
+// Usage in event handlers
+const handleNavigate = useCallback(() => {
+  router.push("/dashboard");
+}, [router]);
+
+const handleBack = useCallback(() => {
+  router.back();
+}, [router]);
+```
+
+**Best Practices:**
+
+- Use `router` as the variable name for consistency across components
+- Access router methods in event handlers (Zone 7) rather than directly in JSX
+- For Next.js App Router, import from `next/navigation`
+- For Next.js Pages Router, import from `next/router`
+
+```typescript
+// ✅ Good: Router in Zone 3, used in event handlers
+const router = useRouter()
+
+const handleSubmit = useCallback(() => {
+  // ... form logic ...
+  router.push('/success')
+}, [router])
+
+// ❌ Bad: Router used directly in JSX
+<button onClick={() => router.push('/page')}>Go</button>
+```
+
+**Translation Hooks (`useTranslations`):**
+
+Translation hooks from `next-intl` should be placed in Zone 3 alongside other context hooks. Use descriptive variable names that reflect the namespace scope.
+
+```typescript
+// 3. Context hooks (external context dependencies)
+const { t } = useTranslations("namespace");
+const tCommon = useTranslations("common");
+const tError = useTranslations("error");
+const tProfile = useTranslations("profile");
+```
+
+**Best Practices:**
+
+- Create a single translator per namespace per component for readability
+- Name translator variables to reflect the exact namespace scope
+- Use the translator function throughout the component for all user-facing text
+- Organize translation keys by feature namespace (e.g., `profile.*`, `common.*`, `error.*`)
+
+```typescript
+// ✅ Good: Clear namespace naming
+const tProfile = useTranslations('profile')
+const tCommon = useTranslations('common')
+
+// Usage in component
+<h1>{tProfile('title')}</h1>
+<button>{tCommon('submit')}</button>
+
+// ❌ Bad: Ambiguous naming
+const t = useTranslations('profile') // Too generic
+const profile = useTranslations('profile') // Not a function name
+```
+
+### Zone 5: React Query Hooks
+
+React Query hooks (`useQuery`, `useMutation`, `useInfiniteQuery`, etc.) should be placed after state declarations but before memoized values. This keeps data fetching logic organized and makes loading/error states easily accessible.
+
+```typescript
+// 5. React Query hooks (data fetching)
+const { data, isLoading, error } = useQuery({
+  queryKey: ["key"],
+  queryFn: fetchData,
+});
+
+const mutation = useMutation({
+  mutationFn: updateData,
+  onSuccess: () => {
+    // Handle success
+  },
+});
+```
+
+**Loading State Handling:**
+
+- Extract `isLoading`, `isFetching`, `isPending` from React Query hooks
+- Use these in Zone 9 (Early returns / guards) for conditional rendering
+- Prefer `isLoading` for initial loads, `isFetching` for background refetches
+
+```typescript
+// 9. Early returns / guards
+if (isLoading) {
+  return <LoadingSpinner />;
+}
+if (error) {
+  return <ErrorMessage error={error} />;
+}
+```
+
+### Zone 9: Early Returns / Guards
+
+Use early returns for loading states, error states, and authentication checks. This keeps the main render logic clean and handles edge cases upfront.
+
+**Formatting Rule:**
+Always use braces for early return statements, even for single-line returns. This improves readability and makes it easier to add additional logic later.
+
+```typescript
+// ❌ Bad: Single-line return without braces
+if (isLoading) return <LoadingSpinner />;
+
+// ✅ Good: Early return with braces
+if (isLoading) {
+  return <LoadingSpinner />;
+}
+```
+
+```typescript
+// 9. Early returns / guards
+if (isLoading) {
+  return <LoadingSpinner />;
+}
+if (error) {
+  return <ErrorMessage error={error} />;
+}
+if (!user) {
+  return <Navigate to="/login" />;
+}
+```
+
+## Benefits
+
+- **Consistency**: All components follow the same structure
+- **Readability**: Easy to find specific logic sections
+- **Maintainability**: Clear separation of concerns
+- **Performance**: Proper use of memoization hooks
+- **Data Flow**: Clear organization of data fetching and context dependencies

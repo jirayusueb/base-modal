@@ -1,6 +1,6 @@
+import { create } from "./components/create";
 import { ModalDef } from "./components/modal-def";
 import { ModalHolder } from "./components/modal-holder";
-import { create } from "./components/create";
 import { useModal } from "./hooks/use-modal";
 import { Provider } from "./providers/provider";
 import {

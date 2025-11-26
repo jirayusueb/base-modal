@@ -28,6 +28,6 @@
   "exclude": [
     "node_modules",
     "lib",
-    "src/setupTests.ts"
+    "src/tests/setup-tests.ts"
   ]
 }

@@ -7,6 +7,6 @@ export let dispatch: React.Dispatch<BaseModalAction> = () => {
   );
 };
 
-export const setDispatch = (d: React.Dispatch<BaseModalAction>) => {
+export function setDispatch(d: React.Dispatch<BaseModalAction>) {
   dispatch = d;
-};
+}

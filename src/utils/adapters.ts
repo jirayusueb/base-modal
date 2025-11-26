@@ -1,23 +1,27 @@
 import type React from "react";
 import type { BaseModalHandler, BaseModalHocProps } from "../types";
 
-export function createModalHandler<T extends React.ComponentType<any>>(): {
+export interface CreateModalHandlerReturn<T extends React.ComponentType<any>> {
   show: (
     args?: Omit<React.ComponentProps<T>, keyof BaseModalHocProps>,
   ) => Promise<unknown>;
   hide: () => void;
-} {
+}
+
+export function createModalHandler<
+  T extends React.ComponentType<any>,
+>(): CreateModalHandlerReturn<T> {
   return Object.create(null);
 }
 
-export const antdModal = (
-  modal: BaseModalHandler,
-): {
+export interface AntdModalReturn {
   visible: boolean;
   onCancel: () => void;
   onOk: () => void;
   afterClose: () => void;
-} => {
+}
+
+export function antdModal(modal: BaseModalHandler): AntdModalReturn {
   return {
     visible: modal.visible,
     onOk: () => modal.hide(),
@@ -28,32 +32,33 @@ export const antdModal = (
       if (!modal.keepMounted) modal.remove();
     },
   };
-};
+}
 
-export const antdModalV5 = (
-  modal: BaseModalHandler,
-): {
+export interface AntdModalV5Return {
   open: boolean;
   onCancel: () => void;
   onOk: () => void;
   afterClose: () => void;
-} => {
+}
+
+export function antdModalV5(modal: BaseModalHandler): AntdModalV5Return {
   const { onOk, onCancel, afterClose } = antdModal(modal);
+
   return {
     open: modal.visible,
     onOk,
     onCancel,
     afterClose,
   };
-};
+}
 
-export const antdDrawer = (
-  modal: BaseModalHandler,
-): {
+export interface AntdDrawerReturn {
   visible: boolean;
   onClose: () => void;
   afterVisibleChange: (visible: boolean) => void;
-} => {
+}
+
+export function antdDrawer(modal: BaseModalHandler): AntdDrawerReturn {
   return {
     visible: modal.visible,
     onClose: () => modal.hide(),
@@ -64,26 +69,31 @@ export const antdDrawer = (
       !v && !modal.keepMounted && modal.remove();
     },
   };
-};
+}
 
-export const antdDrawerV5 = (
-  modal: BaseModalHandler,
-): {
+export interface AntdDrawerV5Return {
   open: boolean;
   onClose: () => void;
   afterOpenChange: (visible: boolean) => void;
-} => {
+}
+
+export function antdDrawerV5(modal: BaseModalHandler): AntdDrawerV5Return {
   const { onClose, afterVisibleChange: afterOpenChange } = antdDrawer(modal);
+
   return {
     open: modal.visible,
     onClose,
     afterOpenChange,
   };
-};
+}
 
-export const muiDialog = (
-  modal: BaseModalHandler,
-): { open: boolean; onClose: () => void; onExited: () => void } => {
+export interface MuiDialogReturn {
+  open: boolean;
+  onClose: () => void;
+  onExited: () => void;
+}
+
+export function muiDialog(modal: BaseModalHandler): MuiDialogReturn {
   return {
     open: modal.visible,
     onClose: () => modal.hide(),
@@ -92,15 +102,15 @@ export const muiDialog = (
       !modal.keepMounted && modal.remove();
     },
   };
-};
+}
 
-export const muiDialogV5 = (
-  modal: BaseModalHandler,
-): {
+export interface MuiDialogV5Return {
   open: boolean;
   onClose: () => void;
   TransitionProps: { onExited: () => void };
-} => {
+}
+
+export function muiDialogV5(modal: BaseModalHandler): MuiDialogV5Return {
   return {
     open: modal.visible,
     onClose: () => modal.hide(),
@@ -111,11 +121,17 @@ export const muiDialogV5 = (
       },
     },
   };
-};
+}
 
-export const bootstrapDialog = (
+export interface BootstrapDialogReturn {
+  show: boolean;
+  onHide: () => void;
+  onExited: () => void;
+}
+
+export function bootstrapDialog(
   modal: BaseModalHandler,
-): { show: boolean; onHide: () => void; onExited: () => void } => {
+): BootstrapDialogReturn {
   return {
     show: modal.visible,
     onHide: () => modal.hide(),
@@ -124,4 +140,4 @@ export const bootstrapDialog = (
       !modal.keepMounted && modal.remove();
     },
   };
-};
+}

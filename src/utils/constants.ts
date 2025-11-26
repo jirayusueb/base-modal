@@ -14,4 +14,6 @@ export const modalCallbacks: BaseModalCallbacks = {};
 export const hideModalCallbacks: BaseModalCallbacks = {};
 
 let uidSeed = 0;
-export const getUid = () => `_nice_modal_${uidSeed++}`;
+export function getUid() {
+  return `_nice_modal_${uidSeed++}`;
+}

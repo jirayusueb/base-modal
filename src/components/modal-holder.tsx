@@ -3,6 +3,12 @@ import React, { useCallback, useMemo } from "react";
 import { MODAL_REGISTRY, getUid } from "../utils/constants";
 import { hide, show } from "../utils/modal";
 
+interface ModalHolderProps {
+  modal: string | React.FC<any>;
+  handler: any;
+  [key: string]: any;
+}
+
 /**
  * A place holder allows to bind props to a modal.
  * It assigns show/hide methods to handler object to show/hide the modal.
@@ -14,15 +20,11 @@ import { hide, show } from "../utils/modal";
  * @param handler - The handler object to control the modal.
  * @returns
  */
-export const ModalHolder: React.FC<Record<string, unknown>> = ({
+export function ModalHolder({
   modal,
   handler = {},
   ...restProps
-}: {
-  modal: string | React.FC<any>;
-  handler: any;
-  [key: string]: any;
-}) => {
+}: ModalHolderProps) {
   const mid = useMemo(() => getUid(), []);
   const ModalComp =
     typeof modal === "string" ? MODAL_REGISTRY[modal]?.comp : modal;
@@ -35,8 +37,9 @@ export const ModalHolder: React.FC<Record<string, unknown>> = ({
       `No modal found for id: ${modal} in BaseModal.ModalHolder.`,
     );
   }
+
   handler.show = useCallback((args: any) => show(mid, args), [mid]);
   handler.hide = useCallback(() => hide(mid), [mid]);
 
   return <ModalComp id={mid} {...restProps} />;
-};
+}

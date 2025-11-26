@@ -1,13 +1,14 @@
 import type { BaseModalAction, BaseModalStore } from "../types";
 import { ALREADY_MOUNTED, initialState } from "./constants";
 
-export const reducer = (
+export function reducer(
   state: BaseModalStore = initialState,
   action: BaseModalAction,
-): BaseModalStore => {
+): BaseModalStore {
   switch (action.type) {
     case "base-modal/show": {
       const { modalId, args } = action.payload;
+
       return {
         ...state,
         [modalId]: {
@@ -24,7 +25,10 @@ export const reducer = (
     }
     case "base-modal/hide": {
       const { modalId } = action.payload;
-      if (!state[modalId]) return state;
+      if (!state[modalId]) {
+        return state;
+      }
+
       return {
         ...state,
         [modalId]: {
@@ -37,10 +41,12 @@ export const reducer = (
       const { modalId } = action.payload;
       const newState = { ...state };
       delete newState[modalId];
+
       return newState;
     }
     case "base-modal/set-flags": {
       const { modalId, flags } = action.payload;
+
       return {
         ...state,
         [modalId]: {
@@ -52,7 +58,7 @@ export const reducer = (
     default:
       return state;
   }
-};
+}
 
 export function showModal(
   modalId: string,

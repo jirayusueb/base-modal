@@ -10,29 +10,32 @@ import {
 import { dispatch } from "./dispatch";
 import { hideModal, removeModal, setModalFlags, showModal } from "./reducer";
 
-export const getModalId = (modal: string | React.FC<any>): string => {
-  if (typeof modal === "string") return modal as string;
+export function getModalId(modal: string | React.FC<any>): string {
+  if (typeof modal === "string") {
+    return modal as string;
+  }
   if (!(modal as any)[symModalId]) {
     (modal as any)[symModalId] = getUid();
   }
-  return (modal as any)[symModalId];
-};
 
-export const register = <T extends React.FC<any>>(
+  return (modal as any)[symModalId];
+}
+
+export function register<T extends React.FC<any>>(
   id: string,
   comp: T,
   props?: Partial<BaseModalArgs<T>>,
-): void => {
+): void {
   if (!MODAL_REGISTRY[id]) {
     MODAL_REGISTRY[id] = { comp, props };
   } else {
     MODAL_REGISTRY[id].props = props;
   }
-};
+}
 
-export const unregister = (id: string): void => {
+export function unregister(id: string): void {
   delete MODAL_REGISTRY[id];
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function show(
@@ -60,6 +63,7 @@ export function show(
       promise,
     };
   }
+
   return modalCallbacks[modalId].promise;
 }
 
@@ -84,22 +88,23 @@ export function hide(modal: string | React.FC<any>) {
       promise,
     };
   }
+
   return hideModalCallbacks[modalId].promise;
 }
 
-export const remove = (modal: string | React.FC<any>): void => {
+export function remove(modal: string | React.FC<any>): void {
   const modalId = getModalId(modal);
   dispatch(removeModal(modalId));
   delete modalCallbacks[modalId];
   delete hideModalCallbacks[modalId];
-};
+}
 
-export const setFlags = (
+export function setFlags(
   modalId: string,
   flags: Record<string, unknown>,
-): void => {
+): void {
   dispatch(setModalFlags(modalId, flags));
-};
+}
 
 // Get modal component by modal id
 export function getModal(modalId: string): React.FC<any> | undefined {
