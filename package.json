@@ -1,26 +1,52 @@
 {
   "name": "base-modal",
-  "version": "1.2.13",
+  "version": "0.0.1",
+  "description": "A small, zero dependency utility to manage modals in a natural way for React",
+  "keywords": [
+    "react",
+    "modal",
+    "dialog",
+    "context",
+    "promise",
+    "typescript"
+  ],
   "license": "MIT",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
-  "repository": "https://github.com/eBay/nice-modal-react",
+  "author": "",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src"
+  ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc --sourcemap && tsc --module commonjs --outDir lib/cjs --sourcemap",
-    "dev": "tsc -w",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:ui": "vitest --ui --coverage",
+    "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "format": "biome check --write src"
   },
-  "files": [
-    "/lib",
-    "/src"
-  ],
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -31,10 +57,14 @@
     "@testing-library/react": "^16.0.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "happy-dom": "^15.11.7",
+    "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "4.0.14",
+    "@vitest/ui": "^4.0.14",
+    "happy-dom": "^20.0.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tsdown": "^0.16.7",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.14"
   }
 }
