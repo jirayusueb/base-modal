@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect, useMemo } from "react";
-import type { BaseModalArgs, BaseModalHandler } from "../types";
+import type React from "react";
+import type { BaseModalHandler, BaseModalHocProps } from "../types";
 import {
   MODAL_REGISTRY,
   hideModalCallbacks,
   modalCallbacks,
 } from "../utils/constants";
-import { BaseModalContext, BaseModalIdContext } from "../utils/contexts";
+import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { getModalId, hide, register, remove, show } from "../utils/modal";
 
 export function useModal(): BaseModalHandler;
@@ -13,15 +14,17 @@ export function useModal(
   modal: string,
   args?: Record<string, unknown>,
 ): BaseModalHandler;
-export function useModal<C, P extends Partial<BaseModalArgs<React.FC<C>>>>(
-  modal: React.FC<C>,
-  args?: P,
-): Omit<BaseModalHandler, "show"> & {
+export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
+  modal: React.ComponentType<P | (P & BaseModalHocProps)>,
+  args?: Partial<P>,
+): Omit<BaseModalHandler<P>, "show"> & {
   show: (args?: P) => Promise<unknown>;
 };
 
-export function useModal(modal?: any, args?: any): any {
-  const modals = useContext(BaseModalContext);
+export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
+  modal?: string | React.ComponentType<P>,
+  args?: Partial<P> | Record<string, unknown>,
+): BaseModalHandler<P> {
   const contextModalId = useContext(BaseModalIdContext);
 
   let modalId: string | null = null;
@@ -30,25 +33,28 @@ export function useModal(modal?: any, args?: any): any {
   if (!modal) {
     modalId = contextModalId;
   } else {
-    modalId = getModalId(modal);
+    modalId = getModalId<P>(modal as string | React.ComponentType<P>);
   }
 
   if (!modalId) {
     throw new Error("No modal id found in BaseModal.useModal.");
   }
 
-  const mid = modalId as string;
-  const modalInfo = modals[mid];
+  const mid = modalId;
+
+  // Use selective context subscription - only re-renders when this specific modal changes
+  const modalInfo = useModalContext(mid);
 
   useEffect(() => {
     // If use a component directly, register it.
-    if (isUseComponent && !MODAL_REGISTRY[mid]) {
-      register(mid, modal as React.FC, args);
+    if (isUseComponent && !MODAL_REGISTRY[mid] && typeof modal !== "string") {
+      register(mid, modal as React.ComponentType<P>, args as Partial<P>);
     }
-  }, [isUseComponent, mid, modal, args]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUseComponent, mid]);
 
   const showCallback = useCallback(
-    (args?: Record<string, unknown>) => show(mid, args),
+    (args?: P | Record<string, unknown>) => show<P>(mid, args as P),
     [mid],
   );
   const hideCallback = useCallback(() => hide(mid), [mid]);

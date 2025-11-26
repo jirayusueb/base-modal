@@ -1,5 +1,6 @@
 import React from "react";
-import { getModal, register, unregister } from "../utils/modal";
+import { getModal, getModalId, register, unregister } from "../utils/modal";
+import * as constantsModule from "../utils/constants";
 
 /**
  * Test Perspective Table for Modal Utility Functions
@@ -177,4 +178,20 @@ test("register updates props when modal already exists", () => {
 
   // Cleanup
   unregister(modalId);
+});
+
+test("getModalId throws error when symModalId is falsy after assignment", () => {
+  // Given: A component and mocked getUid that returns empty string
+  const component = TestComponent1;
+
+  // When: Mock getUid to return empty string (falsy value)
+  const getUidSpy = vi.spyOn(constantsModule, "getUid").mockReturnValue("");
+
+  // Then: getModalId should throw error "Failed to get modal ID"
+  expect(() => {
+    getModalId(component);
+  }).toThrow("Failed to get modal ID");
+
+  // Cleanup
+  getUidSpy.mockRestore();
 });

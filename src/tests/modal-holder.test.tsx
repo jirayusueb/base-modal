@@ -5,7 +5,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import React from "react";
-import { ModalHolder, Provider, create, register, useModal } from "../index";
+import { ModalHolder, Provider, create, register, useModal, type ModalHandler } from "../index";
 import { TestModal } from "./helpers/test-modal";
 
 /**
@@ -157,7 +157,7 @@ test("ModalHolder without handler (null) throws error", () => {
   expect(() => {
     render(
       <Provider>
-        <ModalHolder modal={modalId} handler={null} />
+        <ModalHolder modal={modalId} handler={null as unknown as ModalHandler} />
       </Provider>,
     );
   }).toThrow("No handler found in BaseModal.ModalHolder.");

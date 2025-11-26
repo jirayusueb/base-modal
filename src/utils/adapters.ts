@@ -1,16 +1,15 @@
-import type React from "react";
 import type { BaseModalHandler, BaseModalHocProps } from "../types";
 
-export interface CreateModalHandlerReturn<T extends React.ComponentType<any>> {
+export interface CreateModalHandlerReturn<P = Record<string, unknown>> {
   show: (
-    args?: Omit<React.ComponentProps<T>, keyof BaseModalHocProps>,
+    args?: Omit<P, keyof BaseModalHocProps>,
   ) => Promise<unknown>;
   hide: () => void;
 }
 
 export function createModalHandler<
-  T extends React.ComponentType<any>,
->(): CreateModalHandlerReturn<T> {
+  P = Record<string, unknown>,
+>(): CreateModalHandlerReturn<P> {
   return Object.create(null);
 }
 

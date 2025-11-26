@@ -2,9 +2,9 @@
 import React, { useEffect } from "react";
 import { register, unregister } from "../utils/modal";
 
-interface ModalDefProps {
+interface ModalDefProps<P = Record<string, unknown>> {
   id: string;
-  component: React.FC<any>;
+  component: React.ComponentType<P>;
 }
 
 /**
@@ -13,7 +13,10 @@ interface ModalDefProps {
  * @param component - The modal Component.
  * @returns
  */
-export function ModalDef({ id, component }: ModalDefProps) {
+export function ModalDef<P = Record<string, unknown>>({
+  id,
+  component,
+}: ModalDefProps<P>) {
   useEffect(() => {
     register(id, component);
 

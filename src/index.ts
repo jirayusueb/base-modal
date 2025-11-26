@@ -35,6 +35,7 @@ export * from "./components/modal-def";
 export * from "./components/modal-holder";
 export * from "./providers/provider";
 export * from "./utils/adapters";
+export type { ModalHandler } from "./components/modal-holder";
 
 const BaseModal = {
   Provider,

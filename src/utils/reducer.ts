@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import type { BaseModalAction, BaseModalStore } from "../types";
 import { ALREADY_MOUNTED, initialState } from "./constants";
 
@@ -5,14 +6,13 @@ export function reducer(
   state: BaseModalStore = initialState,
   action: BaseModalAction,
 ): BaseModalStore {
+  return produce(state, (draft) => {
   switch (action.type) {
     case "base-modal/show": {
       const { modalId, args } = action.payload;
 
-      return {
-        ...state,
-        [modalId]: {
-          ...state[modalId],
+        draft[modalId] = {
+          ...draft[modalId],
           id: modalId,
           args,
           // If modal is not mounted, mount it first then make it visible.
@@ -20,44 +20,42 @@ export function reducer(
           // This mechanism ensures the entering transition.
           visible: !!ALREADY_MOUNTED[modalId],
           delayVisible: !ALREADY_MOUNTED[modalId],
-        },
       };
+        break;
     }
     case "base-modal/hide": {
       const { modalId } = action.payload;
-      if (!state[modalId]) {
-        return state;
-      }
-
-      return {
-        ...state,
-        [modalId]: {
-          ...state[modalId],
-          visible: false,
-        },
-      };
+        if (draft[modalId]) {
+          draft[modalId].visible = false;
+        }
+        break;
     }
     case "base-modal/remove": {
       const { modalId } = action.payload;
-      const newState = { ...state };
-      delete newState[modalId];
-
-      return newState;
+        delete draft[modalId];
+        break;
     }
     case "base-modal/set-flags": {
       const { modalId, flags } = action.payload;
-
-      return {
-        ...state,
-        [modalId]: {
-          ...state[modalId],
+        if (draft[modalId]) {
+          if (flags) {
+            Object.assign(draft[modalId], flags);
+          }
+        } else if (flags?.keepMounted) {
+          // If modal doesn't exist but keepMounted is true, create it with visible: false
+          draft[modalId] = {
+            id: modalId,
+            visible: false,
+            keepMounted: true,
           ...flags,
-        },
       };
+        }
+        break;
     }
     default:
-      return state;
+        break;
   }
+  });
 }
 
 export function showModal(

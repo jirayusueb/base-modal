@@ -46,7 +46,7 @@ test("show action updates state correctly", () => {
   // Given: Empty initial state and valid show action
   const initialState = {};
   const showAction = {
-    type: "base-modal/show",
+    type: "base-modal/show" as const,
     payload: {
       modalId: "test-modal",
       args: { name: "test" },
@@ -74,7 +74,7 @@ test("hide action sets visible to false", () => {
     },
   };
   const hideAction = {
-    type: "base-modal/hide",
+    type: "base-modal/hide" as const,
     payload: { modalId: "test-modal" },
   };
 
@@ -91,7 +91,7 @@ test("hide action with non-existent modalId does nothing", () => {
     "other-modal": { id: "other-modal", visible: true },
   };
   const hideAction = {
-    type: "base-modal/hide",
+    type: "base-modal/hide" as const,
     payload: { modalId: "non-existent" },
   };
 
@@ -109,7 +109,7 @@ test("remove action removes modal from state", () => {
     "other-modal": { id: "other-modal", visible: true },
   };
   const removeAction = {
-    type: "base-modal/remove",
+    type: "base-modal/remove" as const,
     payload: { modalId: "test-modal" },
   };
 
@@ -127,7 +127,7 @@ test("set-flags action merges flags into modal state", () => {
     "test-modal": { id: "test-modal", visible: true },
   };
   const setFlagsAction = {
-    type: "base-modal/set-flags",
+    type: "base-modal/set-flags" as const,
     payload: {
       modalId: "test-modal",
       flags: { keepMounted: true },
@@ -149,7 +149,7 @@ test("show action with null args handles correctly", () => {
   // Given: Empty state and show action with null args
   const initialState = {};
   const showAction = {
-    type: "base-modal/show",
+    type: "base-modal/show" as const,
     payload: {
       modalId: "test-modal",
       args: null as any,
@@ -167,7 +167,7 @@ test("show action with empty string modalId", () => {
   // Given: Empty state and show action with empty string modalId
   const initialState = {};
   const showAction = {
-    type: "base-modal/show",
+    type: "base-modal/show" as const,
     payload: {
       modalId: "",
       args: {},
@@ -180,4 +180,93 @@ test("show action with empty string modalId", () => {
   // Then: State should contain entry with empty string key
   expect(result).toHaveProperty("");
   expect(result[""].id).toBe("");
+});
+
+test("set-flags action with non-existent modal and keepMounted true", () => {
+  // Given: Empty state and set-flags action for non-existent modal with keepMounted
+  const initialState = {};
+  const setFlagsAction = {
+    type: "base-modal/set-flags" as const,
+    payload: {
+      modalId: "new-modal",
+      flags: { keepMounted: true, customFlag: "value" },
+    },
+  };
+
+  // When: Reducer processes set-flags action for non-existent modal with keepMounted
+  const result = reducer(initialState, setFlagsAction);
+
+  // Then: Modal should be created with visible: false and keepMounted: true
+  expect(result).toHaveProperty("new-modal");
+  expect(result["new-modal"]).toMatchObject({
+    id: "new-modal",
+    visible: false,
+    keepMounted: true,
+    customFlag: "value",
+  });
+});
+
+test("set-flags action with undefined flags when modal exists", () => {
+  // Given: State with a modal
+  const initialState = {
+    "test-modal": {
+      id: "test-modal",
+      visible: true,
+    },
+  };
+  const setFlagsAction = {
+    type: "base-modal/set-flags" as const,
+    payload: {
+      modalId: "test-modal",
+      flags: undefined as unknown as Record<string, unknown>,
+    },
+  };
+
+  // When: Reducer processes set-flags action with undefined flags
+  const result = reducer(initialState, setFlagsAction);
+
+  // Then: Modal should remain unchanged (flags is undefined, so Object.assign is skipped)
+  expect(result["test-modal"]).toEqual(initialState["test-modal"]);
+});
+
+test("set-flags action with null flags when modal exists", () => {
+  // Given: State with a modal
+  const initialState = {
+    "test-modal": {
+      id: "test-modal",
+      visible: true,
+    },
+  };
+  const setFlagsAction = {
+    type: "base-modal/set-flags" as const,
+    payload: {
+      modalId: "test-modal",
+      flags: null as unknown as Record<string, unknown>,
+    },
+  };
+
+  // When: Reducer processes set-flags action with null flags
+  const result = reducer(initialState, setFlagsAction);
+
+  // Then: Modal should remain unchanged (flags is null/falsy, so Object.assign is skipped)
+  expect(result["test-modal"]).toEqual(initialState["test-modal"]);
+});
+
+test("set-flags action without keepMounted when modal does not exist", () => {
+  // Given: Empty state and set-flags action for non-existent modal without keepMounted
+  const initialState = {};
+  const setFlagsAction = {
+    type: "base-modal/set-flags" as const,
+    payload: {
+      modalId: "new-modal",
+      flags: { customFlag: "value" }, // keepMounted not set
+    },
+  };
+
+  // When: Reducer processes set-flags action for non-existent modal without keepMounted
+  const result = reducer(initialState, setFlagsAction);
+
+  // Then: Modal should not be created (keepMounted is false/undefined, so else if branch skipped)
+  expect(result).not.toHaveProperty("new-modal");
+  expect(result).toEqual({});
 });

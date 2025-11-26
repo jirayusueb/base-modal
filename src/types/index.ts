@@ -12,8 +12,14 @@ export interface BaseModalStore {
   [key: string]: BaseModalState;
 }
 
+export type BaseModalActionType =
+  | "base-modal/show"
+  | "base-modal/hide"
+  | "base-modal/remove"
+  | "base-modal/set-flags";
+
 export interface BaseModalAction {
-  type: string;
+  type: BaseModalActionType;
   payload: {
     modalId: string;
     args?: Record<string, unknown>;
@@ -29,16 +35,16 @@ export interface BaseModalCallbacks {
   };
 }
 
-export interface BaseModalHandler<Props = Record<string, unknown>>
+export interface BaseModalHandler<Props = Record<string, unknown>, ResolveValue = unknown>
   extends BaseModalState {
   visible: boolean;
   keepMounted: boolean;
-  show: (args?: Props) => Promise<unknown>;
-  hide: () => Promise<unknown>;
-  resolve: (args?: unknown) => void;
+  show: (args?: Props) => Promise<ResolveValue>;
+  hide: () => Promise<ResolveValue>;
+  resolve: (args?: ResolveValue) => void;
   reject: (args?: unknown) => void;
   remove: () => void;
-  resolveHide: (args?: unknown) => void;
+  resolveHide: (args?: ResolveValue) => void;
 }
 
 export interface BaseModalHocProps {
@@ -49,6 +55,8 @@ export interface BaseModalHocProps {
 
 export type BaseModalArgs<T> = T extends
   | keyof React.JSX.IntrinsicElements
-  | React.JSXElementConstructor<any>
-  ? React.ComponentProps<T>
+  | React.JSXElementConstructor<infer P>
+  ? P
+  : T extends React.ComponentType<infer P>
+  ? P
   : Record<string, unknown>;

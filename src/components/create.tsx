@@ -1,9 +1,9 @@
 // biome-ignore lint/style/useImportType: React is used as value
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useModal } from "../hooks/use-modal";
 import type { BaseModalHocProps } from "../types";
 import { ALREADY_MOUNTED } from "../utils/constants";
-import { BaseModalContext, BaseModalIdContext } from "../utils/contexts";
+import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { setFlags } from "../utils/modal";
 
 export function create<P extends {}>(
@@ -11,10 +11,11 @@ export function create<P extends {}>(
 ): React.FC<P & BaseModalHocProps> {
   return ({ defaultVisible, keepMounted, id, ...props }) => {
     const { args, show } = useModal(id);
-    const modals = useContext(BaseModalContext);
 
-    const shouldMount = !!modals[id];
-    const delayVisible = modals[id]?.delayVisible;
+    // Use selective context subscription - only re-renders when this specific modal changes
+    const modalState = useModalContext(id);
+    const shouldMount = !!modalState;
+    const delayVisible = modalState?.delayVisible;
 
     useEffect(() => {
       // If defaultVisible, show it after mounted.
@@ -27,10 +28,13 @@ export function create<P extends {}>(
       return () => {
         delete ALREADY_MOUNTED[id];
       };
-    }, [id, show, defaultVisible]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, defaultVisible]);
 
     useEffect(() => {
-      if (keepMounted) setFlags(id, { keepMounted: true });
+      if (keepMounted) {
+        setFlags(id, { keepMounted: true });
+      }
     }, [id, keepMounted]);
 
     useEffect(() => {
@@ -41,7 +45,8 @@ export function create<P extends {}>(
         // delayVisible: false => true, it means the modal.show() is called, should show it.
         show(args);
       }
-    }, [delayVisible, args, show]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [delayVisible]);
 
     if (!shouldMount) {
       return null;

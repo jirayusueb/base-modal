@@ -1,33 +1,43 @@
 import type React from "react";
-import type { BaseModalArgs } from "../types";
+import type { BaseModalHocProps } from "../types";
 import {
   MODAL_REGISTRY,
   getUid,
   hideModalCallbacks,
   modalCallbacks,
   symModalId,
+  type ModalRegistryEntry,
 } from "./constants";
 import { dispatch } from "./dispatch";
 import { hideModal, removeModal, setModalFlags, showModal } from "./reducer";
 
-export function getModalId(modal: string | React.FC<any>): string {
+export function getModalId<P = Record<string, unknown>>(
+  modal: string | React.ComponentType<P>,
+): string {
   if (typeof modal === "string") {
-    return modal as string;
+    return modal;
   }
-  if (!(modal as any)[symModalId]) {
-    (modal as any)[symModalId] = getUid();
+  const component = modal as React.ComponentType<P> & {
+    [symModalId]?: string;
+  };
+  if (!component[symModalId]) {
+    component[symModalId] = getUid();
   }
 
-  return (modal as any)[symModalId];
+  const id = component[symModalId];
+  if (!id) {
+    throw new Error("Failed to get modal ID");
+  }
+  return id;
 }
 
-export function register<T extends React.FC<any>>(
+export function register<P = Record<string, unknown>>(
   id: string,
-  comp: T,
-  props?: Partial<BaseModalArgs<T>>,
+  comp: React.ComponentType<P>,
+  props?: Partial<P>,
 ): void {
   if (!MODAL_REGISTRY[id]) {
-    MODAL_REGISTRY[id] = { comp, props };
+    MODAL_REGISTRY[id] = { comp: comp as React.ComponentType, props } as ModalRegistryEntry;
   } else {
     MODAL_REGISTRY[id].props = props;
   }
@@ -37,17 +47,16 @@ export function unregister(id: string): void {
   delete MODAL_REGISTRY[id];
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function show(
-  modal: React.FC<any> | string,
-  args?: BaseModalArgs<React.FC<any>> | Record<string, unknown>,
-) {
-  const modalId = getModalId(modal);
+export function show<P = Record<string, unknown>>(
+  modal: React.ComponentType<P | (P & BaseModalHocProps)> | string,
+  args?: P,
+): Promise<unknown> {
+  const modalId = getModalId<P>(modal);
   if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
-    register(modalId, modal as React.FC);
+    register(modalId, modal, args);
   }
 
-  dispatch(showModal(modalId, args));
+  dispatch(showModal(modalId, args as Record<string, unknown>));
   if (!modalCallbacks[modalId]) {
     // `!` tell ts that theResolve will be written before it is used
     let theResolve!: (args?: unknown) => void;
@@ -67,9 +76,10 @@ export function show(
   return modalCallbacks[modalId].promise;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function hide(modal: string | React.FC<any>) {
-  const modalId = getModalId(modal);
+export function hide<P = Record<string, unknown>>(
+  modal: string | React.ComponentType<P>,
+): Promise<unknown> {
+  const modalId = getModalId<P>(modal);
   dispatch(hideModal(modalId));
   // Should also delete the callback for modal.resolve #35
   delete modalCallbacks[modalId];
@@ -92,8 +102,10 @@ export function hide(modal: string | React.FC<any>) {
   return hideModalCallbacks[modalId].promise;
 }
 
-export function remove(modal: string | React.FC<any>): void {
-  const modalId = getModalId(modal);
+export function remove<P = Record<string, unknown>>(
+  modal: string | React.ComponentType<P>,
+): void {
+  const modalId = getModalId<P>(modal);
   dispatch(removeModal(modalId));
   delete modalCallbacks[modalId];
   delete hideModalCallbacks[modalId];
@@ -107,6 +119,8 @@ export function setFlags(
 }
 
 // Get modal component by modal id
-export function getModal(modalId: string): React.FC<any> | undefined {
-  return MODAL_REGISTRY[modalId]?.comp;
+export function getModal<P = Record<string, unknown>>(
+  modalId: string,
+): React.ComponentType<P> | undefined {
+  return MODAL_REGISTRY[modalId]?.comp as React.ComponentType<P> | undefined;
 }

@@ -43,6 +43,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:ui": "vitest --ui --coverage",
+    "benchmark": "vitest run src/benchmarks",
+    "benchmark:watch": "vitest src/benchmarks",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "format": "biome check --write src"
@@ -66,5 +68,9 @@
     "tsdown": "^0.16.7",
     "typescript": "^5.7.2",
     "vitest": "^4.0.14"
+  },
+  "dependencies": {
+    "immer": "^11.0.0",
+    "use-immer": "^0.11.0"
   }
 }
