@@ -5,7 +5,7 @@ import {
   MODAL_REGISTRY,
   hideModalCallbacks,
   modalCallbacks,
-} from "../utils/constants";
+} from "../constants";
 import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { getModalId, hide, register, remove, show } from "../utils/modal";
 
@@ -45,12 +45,12 @@ export function useModal<P extends Record<string, unknown> = Record<string, unkn
   // Use selective context subscription - only re-renders when this specific modal changes
   const modalInfo = useModalContext(mid);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // If use a component directly, register it.
     if (isUseComponent && !MODAL_REGISTRY[mid] && typeof modal !== "string") {
       register(mid, modal as React.ComponentType<P>, args as Partial<P>);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUseComponent, mid]);
 
   const showCallback = useCallback(

@@ -1,6 +1,6 @@
 import React from "react";
 import { getModal, getModalId, register, unregister } from "../utils/modal";
-import * as constantsModule from "../utils/constants";
+import * as constantsModule from "../constants";
 
 /**
  * Test Perspective Table for Modal Utility Functions

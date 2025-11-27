@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import React from "react";
-import { ALREADY_MOUNTED, MODAL_REGISTRY } from "../utils/constants";
+import { ALREADY_MOUNTED, MODAL_REGISTRY } from "../constants";
 import { useModalContext } from "../utils/contexts";
 
 function BaseModalPlaceholderComponent() {

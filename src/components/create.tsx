@@ -1,14 +1,13 @@
-// biome-ignore lint/style/useImportType: React is used as value
-import React, { useEffect } from "react";
+import { useEffect, type ComponentType, type FC } from "react";
 import { useModal } from "../hooks/use-modal";
 import type { BaseModalHocProps } from "../types";
-import { ALREADY_MOUNTED } from "../utils/constants";
+import { ALREADY_MOUNTED } from "../constants";
 import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { setFlags } from "../utils/modal";
 
 export function create<P extends {}>(
-  Comp: React.ComponentType<P>,
-): React.FC<P & BaseModalHocProps> {
+  Comp: ComponentType<P>,
+): FC<P & BaseModalHocProps> {
   return ({ defaultVisible, keepMounted, id, ...props }) => {
     const { args, show } = useModal(id);
 
@@ -17,6 +16,7 @@ export function create<P extends {}>(
     const shouldMount = !!modalState;
     const delayVisible = modalState?.delayVisible;
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
       // If defaultVisible, show it after mounted.
       if (defaultVisible) {
@@ -28,7 +28,6 @@ export function create<P extends {}>(
       return () => {
         delete ALREADY_MOUNTED[id];
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, defaultVisible]);
 
     useEffect(() => {
@@ -37,6 +36,7 @@ export function create<P extends {}>(
       }
     }, [id, keepMounted]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
       // If modal.show is called
       //  1. If modal was mounted, should make it visible directly
@@ -45,7 +45,6 @@ export function create<P extends {}>(
         // delayVisible: false => true, it means the modal.show() is called, should show it.
         show(args);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [delayVisible]);
 
     if (!shouldMount) {

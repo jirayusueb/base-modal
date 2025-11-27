@@ -1,18 +1,18 @@
-import type React from "react";
-import type { BaseModalHocProps } from "../types";
+import type { ComponentType } from "react";
 import {
   MODAL_REGISTRY,
+  type ModalRegistryEntry,
   getUid,
   hideModalCallbacks,
   modalCallbacks,
   symModalId,
-  type ModalRegistryEntry,
-} from "./constants";
+} from "../constants";
+import type { BaseModalHocProps } from "../types";
 import { dispatch } from "./dispatch";
 import { hideModal, removeModal, setModalFlags, showModal } from "./reducer";
 
 export function getModalId<P = Record<string, unknown>>(
-  modal: string | React.ComponentType<P>,
+  modal: string | ComponentType<P>,
 ): string {
   if (typeof modal === "string") {
     return modal;
@@ -33,11 +33,11 @@ export function getModalId<P = Record<string, unknown>>(
 
 export function register<P = Record<string, unknown>>(
   id: string,
-  comp: React.ComponentType<P>,
+  comp: ComponentType<P>,
   props?: Partial<P>,
 ): void {
   if (!MODAL_REGISTRY[id]) {
-    MODAL_REGISTRY[id] = { comp: comp as React.ComponentType, props } as ModalRegistryEntry;
+    MODAL_REGISTRY[id] = { comp: comp as ComponentType, props } as ModalRegistryEntry;
   } else {
     MODAL_REGISTRY[id].props = props;
   }

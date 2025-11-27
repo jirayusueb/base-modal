@@ -1,11 +1,10 @@
-import { useMemo, useContext } from "react";
-import React from "react";
+import { useMemo, useContext, createContext } from "react";
 import type { BaseModalStore, BaseModalState } from "../types";
-import { initialState } from "./constants";
+import { initialState } from "../constants";
 
 export const BaseModalContext =
-  React.createContext<BaseModalStore>(initialState);
-export const BaseModalIdContext = React.createContext<string | null>(null);
+  createContext<BaseModalStore>(initialState);
+export const BaseModalIdContext = createContext<string | null>(null);
 
 /**
  * Custom hook for selective context subscription.

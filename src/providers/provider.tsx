@@ -1,9 +1,8 @@
-// biome-ignore lint/style/useImportType: React is used as value
 import React, { type ReactNode, useCallback, useMemo } from "react";
 import { useImmer } from "use-immer";
 import { BaseModalPlaceholder } from "../components/base-modal-placeholder";
 import type { BaseModalAction, BaseModalStore } from "../types";
-import { ALREADY_MOUNTED, initialState } from "../utils/constants";
+import { ALREADY_MOUNTED, initialState } from "../constants";
 import { BaseModalContext } from "../utils/contexts";
 import { setDispatch } from "../utils/dispatch";
 

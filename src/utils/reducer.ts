@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import type { BaseModalAction, BaseModalStore } from "../types";
-import { ALREADY_MOUNTED, initialState } from "./constants";
+import { ALREADY_MOUNTED, initialState } from "../constants";
 
 export function reducer(
   state: BaseModalStore = initialState,

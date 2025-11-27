@@ -1,6 +1,5 @@
-// biome-ignore lint/style/useImportType: React is used as value
 import React, { useCallback, useMemo } from "react";
-import { MODAL_REGISTRY, getUid } from "../utils/constants";
+import { MODAL_REGISTRY, getUid } from "../constants";
 import { hide, show } from "../utils/modal";
 
 export interface ModalHandler {
