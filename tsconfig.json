@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "lib/esm",
+    "outDir": "dist",
     "module": "esnext",
     "target": "es5",
     "lib": [
@@ -9,25 +9,36 @@
       "es2016",
       "es2017"
     ],
-    "jsx": "react",
+    "jsx": "react-jsx",
     "declaration": true,
-    "moduleResolution": "node",
+    "declarationMap": true,
+    "moduleResolution": "bundler",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "sourceMap": false,
-    "allowSyntheticDefaultImports": true
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "sourceMap": false
   },
   "include": [
     "src"
   ],
   "exclude": [
     "node_modules",
+    "dist",
     "lib",
-    "src/tests/setup-tests.ts"
+    "coverage",
+    "src/tests/**/*",
+    "src/benchmarks/**/*"
   ]
 }
