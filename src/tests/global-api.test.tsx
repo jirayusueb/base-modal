@@ -1,9 +1,12 @@
+/// <reference types="vitest/globals" />
+/// <reference types="@testing-library/jest-dom" />
 import {
   act,
   render,
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import type { ComponentType } from "react";
 import React from "react";
 import BaseModal, { Provider, register, create, useModal } from "../index";
 import { TestModal } from "./helpers/test-modal";
@@ -59,7 +62,7 @@ test("show/hide modal by component with globally API", async () => {
   expect(modalTextElement).not.toBeInTheDocument();
 
   act(() => {
-    BaseModal.show(HocTestModal);
+    BaseModal.show(HocTestModal as ComponentType<{ name?: string }>);
   });
   modalTextElement = screen.queryByText("HocTestModal");
   expect(modalTextElement).toBeInTheDocument();
