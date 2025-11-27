@@ -12,6 +12,11 @@ A small, zero-dependency utility to manage modals in a natural way for React. Bu
 - 📦 **Small Bundle Size** - Minimal footprint with tree-shaking support
 - ✅ **100% Test Coverage** - Comprehensive test suite with benchmarks
 
+## Requirements
+
+- Node.js >= 22.0.0
+- npm >= 11.0.0 (or compatible package manager)
+
 ## Installation
 
 ```bash
@@ -43,7 +48,7 @@ function App() {
 ### 2. Create a modal component
 
 ```tsx
-import { create } from 'base-modal';
+import { create, useModal } from 'base-modal';
 
 const MyModal = create(({ title, message }: { title: string; message: string }) => {
   const modal = useModal();
@@ -331,24 +336,60 @@ npm run test:watch
 
 ## Development
 
-```bash
-# Install dependencies
-npm install
+This project uses [Bun](https://bun.sh) as the package manager and [Biome](https://biomejs.dev) for linting and formatting.
 
-# Build
+### Prerequisites
+
+- Node.js >= 22.0.0
+- Bun >= 1.3.0 (recommended) or npm >= 11.0.0
+
+### Setup
+
+```bash
+# Install dependencies (using Bun)
+bun install
+
+# Or using npm
+npm install
+```
+
+### Available Scripts
+
+```bash
+# Build the library
+bun run build
+# or
 npm run build
 
 # Development mode (watch)
+bun run dev
+# or
 npm run dev
 
 # Type check
+bun run typecheck
+# or
 npm run typecheck
 
-# Lint
+# Lint (using Biome)
+bun run lint
+# or
 npm run lint
 
-# Format
+# Format code (using Biome)
+bun run format
+# or
 npm run format
+
+# Run tests
+bun run test
+# or
+npm run test
+
+# Run tests with coverage
+bun run test:coverage
+# or
+npm run test:coverage
 ```
 
 ## License
