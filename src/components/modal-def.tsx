@@ -1,4 +1,3 @@
-// biome-ignore lint/style/useImportType: React is used as value
 import React, { useEffect } from "react";
 import { register, unregister } from "../utils/modal";
 

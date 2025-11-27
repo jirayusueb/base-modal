@@ -1,41 +1,32 @@
-import { create } from "./components/create";
-import { ModalDef } from "./components/modal-def";
-import { ModalHolder } from "./components/modal-holder";
-import { useModal } from "./hooks/use-modal";
-import { Provider } from "./providers/provider";
+import { create, ModalDef, ModalHolder } from "./components";
+import { useModal } from "./hooks";
+import { Provider } from "./providers";
 import {
   antdDrawer,
   antdDrawerV5,
   antdModal,
   antdModalV5,
+  BaseModalContext,
   bootstrapDialog,
   createModalHandler,
-  muiDialog,
-  muiDialogV5,
-} from "./utils/adapters";
-import { BaseModalContext } from "./utils/contexts";
-import {
   getModal,
   hide,
+  muiDialog,
+  muiDialogV5,
   register,
   remove,
+  reducer,
   show,
   unregister,
-} from "./utils/modal";
-import { reducer } from "./utils/reducer";
+} from "./utils";
 
 export * from "./types";
-export * from "./utils/constants";
-export * from "./utils/contexts";
-export * from "./utils/reducer";
-export * from "./utils/modal";
-export * from "./hooks/use-modal";
-export * from "./components/create";
-export * from "./components/modal-def";
-export * from "./components/modal-holder";
-export * from "./providers/provider";
-export * from "./utils/adapters";
-export type { ModalHandler } from "./components/modal-holder";
+export * from "./constants";
+export * from "./utils";
+export * from "./hooks";
+export * from "./components";
+export * from "./providers";
+export type { ModalHandler } from "./components";
 
 const BaseModal = {
   Provider,
