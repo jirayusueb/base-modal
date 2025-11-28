@@ -1,75 +1,220 @@
-# Performance Benchmarks
+# Base Modal Benchmarks
 
-This directory contains performance benchmarks to measure and validate the optimizations made to the modal library.
+This directory contains comprehensive performance benchmarks for the Base Modal library. The benchmarks measure core operations, React rendering performance, memory usage, context subscriptions, and integration scenarios.
+
+## Overview
+
+The benchmark suite uses [TinyBench](https://github.com/tinylibs/tinybench) to measure performance across multiple dimensions:
+
+1. **Core Operations** (`modal-operations.bench.tsx`) - Timing and throughput for show, hide, register, remove
+2. **Rendering Performance** (`rendering.bench.tsx`) - Component mount time, re-render counts, context subscriptions
+3. **Memory Usage** (`memory.bench.tsx`) - Memory consumption and leak detection
+4. **Context Subscriptions** (`context-subscription.bench.tsx`) - Context performance and selective subscription effectiveness
+5. **Integration** (`integration.bench.tsx`) - End-to-end scenarios and workflows
 
 ## Running Benchmarks
 
-```bash
-# Run all benchmarks
-bun run benchmark
+### Run All Benchmarks
 
-# Run benchmarks in watch mode
-bun run benchmark:watch
+```bash
+npm run benchmark
 ```
 
-## Benchmark Suites
+### Run Specific Benchmark File
 
-### 1. Context Subscription Benchmarks (`context-subscription.bench.tsx`)
+```bash
+npm run benchmark -- src/benchmarks/modal-operations.bench.tsx
+```
 
-Measures the performance improvement from selective context subscriptions:
+### Watch Mode
 
-- **Re-render Count**: Tests how many components re-render when a single modal changes
-- **Scalability**: Measures performance with varying numbers of modals (10, 50, 100, 200)
-- **Expected Results**:
-  - With selective subscriptions, only 1-2 components should re-render when showing a single modal
-  - Operations should complete in < 100ms even with 200 modals
+```bash
+npm run benchmark:watch
+```
 
-### 2. Modal Operations Benchmarks (`modal-operations.bench.tsx`)
+## Understanding Benchmark Results
 
-Measures the performance of core modal operations:
+Benchmark results show:
+- **Mean**: Average execution time
+- **Min/Max**: Fastest and slowest execution times
+- **SD**: Standard deviation (consistency indicator)
+- **P75/P99**: Percentile values (performance under load)
 
-- **Show Operations**: Average, min, max, and P95 times for 1000 show() calls
-- **Hide Operations**: Average, min, max times for 1000 hide() calls
-- **Rapid Operations**: Performance of rapid show/hide cycles on multiple modals
-- **Memory Usage**: Tests memory efficiency with many modals
-- **Expected Results**:
-  - Show/hide operations should average < 10ms
-  - Rapid operations should average < 5ms per cycle
+### Report Export
 
-### 3. Memoization Benchmarks (`memoization.bench.tsx`)
+After running benchmarks, results are automatically exported to a JSON report file in the project root directory. The report file is named with a timestamp: `benchmark-results-YYYYMMDD-HHmmss.json`.
 
-Measures the effectiveness of memoization optimizations:
+**Report Structure:**
 
-- **memo() Effectiveness**: Tests how many components re-render with memo() wrapping
-- **useMemo in BaseModalPlaceholder**: Measures performance of memoized calculations
-- **Context Value Memoization**: Tests stability of memoized context values
-- **Expected Results**:
-  - With memo() and selective subscriptions, < 3 components should re-render
-  - BaseModalPlaceholder operations should be < 200ms for 10 modals
+The JSON report contains:
+- `metadata`: Timestamp, configuration values, and performance thresholds
+- `suites`: Array of benchmark suite results, each containing:
+  - Suite name
+  - Array of benchmark results with metrics (mean, min, max, sd, p75, p99, samples)
 
-## Performance Targets
+**Example Report:**
 
-Based on the optimizations implemented:
+```json
+{
+  "metadata": {
+    "timestamp": "2024-01-01T14:30:22.000Z",
+    "config": {
+      "iterations": 100,
+      "warmup": 10,
+      "time": 1000
+    },
+    "thresholds": {
+      "show": 5,
+      "hide": 3,
+      "register": 1,
+      "remove": 2,
+      "mount": 10,
+      "render": 5
+    }
+  },
+  "suites": [
+    {
+      "name": "Core Operations",
+      "results": [
+        {
+          "name": "BaseModal.show() - single modal",
+          "mean": 2.5,
+          "min": 1.2,
+          "max": 5.0,
+          "sd": 0.8,
+          "p75": 3.0,
+          "p99": 4.5,
+          "samples": 100
+        }
+      ]
+    }
+  ]
+}
+```
 
-- **Re-render Efficiency**: > 95% of components should NOT re-render when unrelated modals change
-- **Operation Speed**: Show/hide operations should complete in < 10ms on average
-- **Scalability**: Should handle 200+ modals without performance degradation
-- **Memory**: Should clean up properly and not leak memory
+Reports can be used for:
+- Performance tracking over time
+- Comparing results across different versions
+- Automated performance regression detection
+- Sharing benchmark results with the team
 
-## Interpreting Results
+### Performance Targets
 
-The benchmarks output performance metrics to the console. Look for:
+Based on `future-plan.md`, the following targets are established:
 
-- **Re-render counts**: Lower is better (ideally 0-2 for selective subscriptions)
-- **Operation times**: Lower is better (should be < 10ms for individual operations)
-- **Scalability**: Times should scale linearly or sub-linearly with modal count
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Modal Show Time | Baseline (target -10% improvement) | Benchmark suite |
+| Re-render Count | Baseline (target -20% improvement) | React DevTools Profiler |
+| Memory Leaks | 0 | Memory profiler |
 
-## Continuous Monitoring
+### Thresholds
 
-These benchmarks can be integrated into CI/CD pipelines to:
+Default performance thresholds (in milliseconds) are defined in `config.ts`:
 
-- Detect performance regressions
-- Validate optimization effectiveness
-- Track performance over time
-- Ensure optimizations remain effective after code changes
+- `show`: < 5ms
+- `hide`: < 3ms
+- `register`: < 1ms
+- `remove`: < 2ms
+- `mount`: < 10ms
+- `render`: < 5ms
+
+## Benchmark Categories
+
+### Core Operations
+
+Measures the performance of fundamental modal operations:
+- Single modal show/hide
+- Sequential modals (10 modals)
+- Concurrent modals (10 modals)
+- Registration overhead
+- Full lifecycle (register → show → hide → remove)
+
+### Rendering Performance
+
+Measures React rendering impact:
+- Component mount time
+- Re-render counts when showing/hiding modals
+- Multiple modals rendering (10 modals)
+- Context subscription overhead
+
+### Memory Usage
+
+Measures memory consumption:
+- Memory usage with 1, 10, and 100 modals
+- Memory cleanup after removal
+- Memory leak detection (create/remove cycles)
+- Promise callback cleanup
+
+### Context Subscriptions
+
+Measures context performance:
+- Context subscription overhead
+- Selective subscription performance
+- Multiple subscribers (10 subscribers)
+- Context value memoization effectiveness
+
+### Integration
+
+End-to-end scenarios:
+- Complete modal workflow (show → interact → hide)
+- Multiple modals workflow (sequential and concurrent)
+- Provider with custom dispatch
+- Modal with keepMounted flag
+- Modal registration and usage
+
+## Contributing New Benchmarks
+
+When adding new benchmarks:
+
+1. Create a new `.bench.tsx` file in this directory
+2. Import `Bench` from `tinybench` and `BENCHMARK_CONFIG` from `./config`
+3. Create a suite with `new Bench({ time: BENCHMARK_CONFIG.time })`
+4. Add benchmark cases using `.add(name, async () => { ... })`
+5. Export the suite as default
+6. Add the export to `index.ts`
+7. Document the benchmark in this README
+
+Example:
+
+```typescript
+import { Bench } from "tinybench";
+import { BENCHMARK_CONFIG } from "./config";
+
+const suite = new Bench({ time: BENCHMARK_CONFIG.time });
+
+suite
+  .add("My benchmark", async () => {
+    // Benchmark code here
+  });
+
+export default suite;
+```
+
+## Configuration
+
+Benchmark configuration is defined in `config.ts`:
+
+- `iterations`: Number of iterations (default: 100)
+- `warmup`: Warmup iterations (default: 10)
+- `time`: Time limit in milliseconds (default: 1000)
+- `thresholds`: Performance thresholds for each operation
+
+## Utilities
+
+The `utils.ts` file provides helper functions:
+- `createTestModal(name)` - Create a test modal component
+- `createTestModals(count)` - Create multiple test modals
+- `measureMemory()` - Measure current memory usage
+- `getMemoryDelta(before, after)` - Calculate memory difference
+- `measureRenderTime(component)` - Measure component render time
+- `setupBenchmark()` - Setup function for benchmarks
+- `waitForAsync()` - Wait for async operations
+
+## Notes
+
+- Benchmarks are excluded from test coverage (see `vitest.config.ts`)
+- Benchmarks run in a separate environment and don't affect test coverage
+- Memory measurements may vary between runs due to garbage collection
+- For consistent results, run benchmarks multiple times and average the results
 
