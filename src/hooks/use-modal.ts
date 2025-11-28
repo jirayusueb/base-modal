@@ -7,6 +7,7 @@ import {
 } from "@/constants";
 import type { BaseModalHandler, BaseModalHocProps } from "@/types";
 import { BaseModalIdContext, useModalContext } from "@/utils/contexts";
+import { ModalIdNotFoundError } from "@/utils/errors";
 import { getModalId, hide, register, remove, show } from "@/utils/modal";
 
 export function useModal(): BaseModalHandler;
@@ -43,7 +44,7 @@ export function useModal<
   }
 
   if (!modalId) {
-    throw new Error("No modal id found in BaseModal.useModal.");
+    throw new ModalIdNotFoundError();
   }
 
   const mid = modalId;

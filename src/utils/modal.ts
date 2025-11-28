@@ -1,34 +1,19 @@
 import type { ComponentType, FC } from "react";
 import {
-  getUid,
   hideModalCallbacks,
   MODAL_REGISTRY,
   type ModalRegistryEntry,
   modalCallbacks,
-  symModalId,
 } from "@/constants";
 import type { BaseModalHocProps } from "@/types";
 import { dispatch } from "./dispatch";
+import { ModalIdFactory } from "./modal-id-factory";
 import { hideModal, removeModal, setModalFlags, showModal } from "./reducer";
 
 export function getModalId<P = Record<string, unknown>>(
   modal: string | ComponentType<P> | FC<P & BaseModalHocProps>,
 ): string {
-  if (typeof modal === "string") {
-    return modal;
-  }
-  const component = modal as (ComponentType<P> | FC<P & BaseModalHocProps>) & {
-    [symModalId]?: string;
-  };
-  if (!component[symModalId]) {
-    component[symModalId] = getUid();
-  }
-
-  const id = component[symModalId];
-  if (!id) {
-    throw new Error("Failed to get modal ID");
-  }
-  return id;
+  return ModalIdFactory.getInstance().getId<P>(modal);
 }
 
 export function register<P = Record<string, unknown>>(

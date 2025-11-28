@@ -39,7 +39,7 @@
     "skipDefaultLibCheck": true,
 
     /* Types */
-    "types": ["vitest/globals", "bun-types", "node"],
+    "types": ["vitest/globals", "node"],
 
     /* Path Mapping */
     "baseUrl": ".",

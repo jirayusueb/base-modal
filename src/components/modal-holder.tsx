@@ -1,6 +1,10 @@
 import type React from "react";
 import { useCallback, useMemo } from "react";
 import { getUid, MODAL_REGISTRY } from "@/constants";
+import {
+  ModalHandlerNotFoundError,
+  ModalNotFoundError,
+} from "@/utils/errors";
 import { hide, show } from "@/utils/modal";
 
 export interface ModalHandler {
@@ -35,12 +39,11 @@ export function ModalHolder<P = Record<string, unknown>>({
     typeof modal === "string" ? MODAL_REGISTRY[modal]?.comp : modal;
 
   if (handler === null) {
-    throw new Error("No handler found in BaseModal.ModalHolder.");
+    throw new ModalHandlerNotFoundError();
   }
   if (!ModalComp) {
-    throw new Error(
-      `No modal found for id: ${modal} in BaseModal.ModalHolder.`,
-    );
+    const modalId = typeof modal === "string" ? modal : "unknown";
+    throw new ModalNotFoundError(modalId);
   }
 
   const actualHandler = handler ?? ({} as ModalHandler);

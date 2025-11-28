@@ -200,7 +200,7 @@ describe("error handling", () => {
     const handler: any = {};
 
     // When: ModalHolder is rendered with invalid modal id
-    // Then: Should throw Error with specific type and message
+    // Then: Should throw ModalNotFoundError with specific type and message
     expect(() => {
       render(
         <Provider>
@@ -208,7 +208,7 @@ describe("error handling", () => {
         </Provider>,
       );
     }).toThrow(
-      `No modal found for id: ${invalidModalId} in BaseModal.ModalHolder.`,
+      `Modal with id "${invalidModalId}" not found. Please check the id or if it is registered or declared via JSX.`,
     );
   });
 
@@ -218,7 +218,7 @@ describe("error handling", () => {
     const handler: any = {};
 
     // When: ModalHolder is rendered with empty string modal id
-    // Then: Should throw Error if not registered
+    // Then: Should throw ModalNotFoundError if not registered
     expect(() => {
       render(
         <Provider>
@@ -226,7 +226,25 @@ describe("error handling", () => {
         </Provider>,
       );
     }).toThrow(
-      `No modal found for id: ${emptyModalId} in BaseModal.ModalHolder.`,
+      `Modal with id "${emptyModalId}" not found. Please check the id or if it is registered or declared via JSX.`,
+    );
+  });
+
+  it("ModalHolder with invalid component throws error with unknown modalId", () => {
+    // Given: An invalid component (null/undefined) passed as modal prop
+    const handler: any = {};
+    const InvalidComponent = null as unknown as React.ComponentType;
+
+    // When: ModalHolder is rendered with invalid component
+    // Then: Should throw ModalNotFoundError with "unknown" as modalId
+    expect(() => {
+      render(
+        <Provider>
+          <ModalHolder modal={InvalidComponent} handler={handler} />
+        </Provider>,
+      );
+    }).toThrow(
+      'Modal with id "unknown" not found. Please check the id or if it is registered or declared via JSX.',
     );
   });
 });
