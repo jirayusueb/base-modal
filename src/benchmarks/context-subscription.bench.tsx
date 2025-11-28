@@ -1,6 +1,6 @@
 import { act, render } from "@testing-library/react";
-import React, { useRef } from "react";
-import { Provider, create, show, hide } from "../index";
+import { useRef } from "react";
+import { create, hide, Provider, show } from "../index";
 
 /**
  * Benchmark: Context Subscription Performance
@@ -24,9 +24,7 @@ const TestModal = create(({ name }: TestModalProps) => {
 function AppWithManyModals({ modalCount = 100 }: { modalCount?: number }) {
   const modals = Array.from({ length: modalCount }, (_, i) => {
     const modalId = `modal-${i}`;
-    return (
-      <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />
-    );
+    return <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />;
   });
 
   return <Provider>{modals}</Provider>;
@@ -49,11 +47,7 @@ test("benchmark: context subscription - re-render count with selective subscript
     const modals = Array.from({ length: modalCount }, (_, i) => {
       const modalId = `modal-${i}`;
       return (
-        <TestModalWithTracking
-          key={modalId}
-          id={modalId}
-          name={`Modal ${i}`}
-        />
+        <TestModalWithTracking key={modalId} id={modalId} name={`Modal ${i}`} />
       );
     });
 
@@ -74,8 +68,9 @@ test("benchmark: context subscription - re-render count with selective subscript
 
   // Then: Measure re-renders
   // With selective subscriptions, only modal-0 should re-render
-  const reRenders = Array.from(renderCounts.values()).filter((count) => count > 1)
-    .length;
+  const reRenders = Array.from(renderCounts.values()).filter(
+    (count) => count > 1,
+  ).length;
 
   console.log("=== Context Subscription Benchmark ===");
   console.log(`Total modals: ${modalCount}`);
@@ -83,7 +78,7 @@ test("benchmark: context subscription - re-render count with selective subscript
   console.log(`Show operation time: ${showTime.toFixed(2)}ms`);
   console.log(`Components that re-rendered: ${reRenders}`);
   console.log(
-    `Re-render efficiency: ${((modalCount - reRenders) / modalCount * 100).toFixed(1)}% components did NOT re-render`,
+    `Re-render efficiency: ${(((modalCount - reRenders) / modalCount) * 100).toFixed(1)}% components did NOT re-render`,
   );
 
   unmount();
@@ -123,7 +118,9 @@ test("benchmark: context subscription - performance with many modals", () => {
     console.log(`Render time: ${renderTime.toFixed(2)}ms`);
     console.log(`Show time: ${showTime.toFixed(2)}ms`);
     console.log(`Hide time: ${hideTime.toFixed(2)}ms`);
-    console.log(`Total time: ${(renderTime + showTime + hideTime).toFixed(2)}ms`);
+    console.log(
+      `Total time: ${(renderTime + showTime + hideTime).toFixed(2)}ms`,
+    );
 
     unmount();
 
@@ -133,4 +130,3 @@ test("benchmark: context subscription - performance with many modals", () => {
     expect(hideTime).toBeLessThan(100); // Should hide in < 100ms
   }
 });
-

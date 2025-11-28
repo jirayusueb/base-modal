@@ -1,6 +1,6 @@
 import { act, render } from "@testing-library/react";
-import React, { useRef } from "react";
-import { Provider, create, show } from "../index";
+import { useRef } from "react";
+import { create, Provider, show } from "../index";
 
 /**
  * Benchmark: Memoization Performance
@@ -27,23 +27,21 @@ test("benchmark: memo() prevents unnecessary re-renders", () => {
   const modalCount = 50;
   const renderCounts = new Map<string, number>();
 
-  const TestModalWithTracking = create(({ name, id }: { name: string; id: string }) => {
-    const renderCount = useRef(0);
-    renderCount.current += 1;
-    renderCounts.set(id, renderCount.current);
+  const TestModalWithTracking = create(
+    ({ name, id }: { name: string; id: string }) => {
+      const renderCount = useRef(0);
+      renderCount.current += 1;
+      renderCounts.set(id, renderCount.current);
 
-    return <div data-testid={`modal-${name}`}>{name}</div>;
-  });
+      return <div data-testid={`modal-${name}`}>{name}</div>;
+    },
+  );
 
   function App() {
     const modals = Array.from({ length: modalCount }, (_, i) => {
       const modalId = `modal-${i}`;
       return (
-        <TestModalWithTracking
-          key={modalId}
-          id={modalId}
-          name={`Modal ${i}`}
-        />
+        <TestModalWithTracking key={modalId} id={modalId} name={`Modal ${i}`} />
       );
     });
 
@@ -59,14 +57,15 @@ test("benchmark: memo() prevents unnecessary re-renders", () => {
   });
 
   // Then: Count re-renders
-  const reRenders = Array.from(renderCounts.values()).filter((count) => count > 1)
-    .length;
+  const reRenders = Array.from(renderCounts.values()).filter(
+    (count) => count > 1,
+  ).length;
 
   console.log("=== Memoization Benchmark ===");
   console.log(`Total modals: ${modalCount}`);
   console.log(`Components that re-rendered: ${reRenders}`);
   console.log(
-    `Memoization efficiency: ${((modalCount - reRenders) / modalCount * 100).toFixed(1)}%`,
+    `Memoization efficiency: ${(((modalCount - reRenders) / modalCount) * 100).toFixed(1)}%`,
   );
 
   unmount();
@@ -80,9 +79,7 @@ test("benchmark: useMemo in BaseModalPlaceholder", () => {
   const modalCount = 100;
   const modals = Array.from({ length: modalCount }, (_, i) => {
     const modalId = `modal-${i}`;
-    return (
-      <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />
-    );
+    return <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />;
   });
 
   // When: Render and show modals
@@ -122,9 +119,7 @@ test("benchmark: context value memoization", () => {
 
   const modals = Array.from({ length: modalCount }, (_, i) => {
     const modalId = `modal-${i}`;
-    return (
-      <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />
-    );
+    return <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />;
   });
 
   // When: Render and perform operations
@@ -156,4 +151,3 @@ test("benchmark: context value memoization", () => {
   // Assert: Should be efficient with memoized context values
   expect(totalTime).toBeLessThan(500); // < 500ms for 20 operations
 });
-

@@ -1,7 +1,7 @@
-import { useEffect, type ComponentType, type FC } from "react";
+import { type ComponentType, type FC, useEffect } from "react";
+import { ALREADY_MOUNTED } from "../constants";
 import { useModal } from "../hooks/use-modal";
 import type { BaseModalHocProps } from "../types";
-import { ALREADY_MOUNTED } from "../constants";
 import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { setFlags } from "../utils/modal";
 
@@ -16,7 +16,7 @@ export function create<P extends {}>(
     const shouldMount = !!modalState;
     const delayVisible = modalState?.delayVisible;
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    // biome-ignore lint/correctness/useExhaustiveDependencies: id and defaultVisible are intentionally excluded to run only on mount/unmount
     useEffect(() => {
       // If defaultVisible, show it after mounted.
       if (defaultVisible) {
@@ -36,7 +36,7 @@ export function create<P extends {}>(
       }
     }, [id, keepMounted]);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    // biome-ignore lint/correctness/useExhaustiveDependencies: delayVisible is the only dependency needed to trigger show
     useEffect(() => {
       // If modal.show is called
       //  1. If modal was mounted, should make it visible directly

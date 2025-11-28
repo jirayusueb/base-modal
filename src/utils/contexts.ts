@@ -1,9 +1,8 @@
-import { useMemo, useContext, createContext } from "react";
-import type { BaseModalStore, BaseModalState } from "../types";
+import { createContext, useContext, useMemo } from "react";
 import { initialState } from "../constants";
+import type { BaseModalState, BaseModalStore } from "../types";
 
-export const BaseModalContext =
-  createContext<BaseModalStore>(initialState);
+export const BaseModalContext = createContext<BaseModalStore>(initialState);
 export const BaseModalIdContext = createContext<string | null>(null);
 
 /**

@@ -6,7 +6,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import React from "react";
-import BaseModal, { Provider, create, useModal } from "../../index";
+import BaseModal, { create, Provider, useModal } from "../../index";
 import type { BaseModalHandler } from "../../types";
 
 export const delay = (t: number) =>

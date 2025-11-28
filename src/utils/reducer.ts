@@ -1,15 +1,15 @@
 import { produce } from "immer";
-import type { BaseModalAction, BaseModalStore } from "../types";
 import { ALREADY_MOUNTED, initialState } from "../constants";
+import type { BaseModalAction, BaseModalStore } from "../types";
 
 export function reducer(
   state: BaseModalStore = initialState,
   action: BaseModalAction,
 ): BaseModalStore {
   return produce(state, (draft) => {
-  switch (action.type) {
-    case "base-modal/show": {
-      const { modalId, args } = action.payload;
+    switch (action.type) {
+      case "base-modal/show": {
+        const { modalId, args } = action.payload;
 
         draft[modalId] = {
           ...draft[modalId],
@@ -20,23 +20,23 @@ export function reducer(
           // This mechanism ensures the entering transition.
           visible: !!ALREADY_MOUNTED[modalId],
           delayVisible: !ALREADY_MOUNTED[modalId],
-      };
+        };
         break;
-    }
-    case "base-modal/hide": {
-      const { modalId } = action.payload;
+      }
+      case "base-modal/hide": {
+        const { modalId } = action.payload;
         if (draft[modalId]) {
           draft[modalId].visible = false;
         }
         break;
-    }
-    case "base-modal/remove": {
-      const { modalId } = action.payload;
+      }
+      case "base-modal/remove": {
+        const { modalId } = action.payload;
         delete draft[modalId];
         break;
-    }
-    case "base-modal/set-flags": {
-      const { modalId, flags } = action.payload;
+      }
+      case "base-modal/set-flags": {
+        const { modalId, flags } = action.payload;
         if (draft[modalId]) {
           if (flags) {
             Object.assign(draft[modalId], flags);
@@ -47,14 +47,14 @@ export function reducer(
             id: modalId,
             visible: false,
             keepMounted: true,
-          ...flags,
-      };
+            ...flags,
+          };
         }
         break;
-    }
-    default:
+      }
+      default:
         break;
-  }
+    }
   });
 }
 

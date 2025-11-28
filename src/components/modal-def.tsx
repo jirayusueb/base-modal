@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect } from "react";
 import { register, unregister } from "../utils/modal";
 
 interface ModalDefProps<P = Record<string, unknown>> {

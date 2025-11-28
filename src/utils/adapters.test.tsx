@@ -1,4 +1,5 @@
-import { createModalHandler } from "../utils/adapters";
+/// <reference types="vitest/globals" />
+import { createModalHandler } from "./adapters";
 
 /**
  * Test Perspective Table for createModalHandler
@@ -11,16 +12,19 @@ import { createModalHandler } from "../utils/adapters";
  * | TC-B-03 | Returned object hide method type | Boundary - type check | hide method returns void | - |
  */
 
-test("createModalHandler returns object with null prototype", () => {
-  // Given: createModalHandler function
-  // When: createModalHandler is called
-  const handler = createModalHandler();
+describe("createModalHandler", () => {
+  it("createModalHandler returns object with null prototype", () => {
+    // Given: createModalHandler function
+    // When: createModalHandler is called
+    const handler = createModalHandler();
 
-  // Then: Should return object with null prototype (Object.create(null))
-  expect(handler).toBeDefined();
-  expect(Object.getPrototypeOf(handler)).toBeNull();
-  expect(handler.toString).toBeUndefined();
-  expect(handler.hasOwnProperty).toBeUndefined();
-  // The object is empty initially, methods are added later by ModalHolder
-  expect(Object.keys(handler)).toHaveLength(0);
+    // Then: Should return object with null prototype (Object.create(null))
+    expect(handler).toBeDefined();
+    expect(Object.getPrototypeOf(handler)).toBeNull();
+    expect(handler.toString).toBeUndefined();
+    expect(handler.hasOwnProperty).toBeUndefined();
+    // The object is empty initially, methods are added later by ModalHolder
+    expect(Object.keys(handler)).toHaveLength(0);
+  });
 });
+

@@ -1,11 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo } from "react";
 import type React from "react";
-import type { BaseModalHandler, BaseModalHocProps } from "../types";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 import {
-  MODAL_REGISTRY,
   hideModalCallbacks,
+  MODAL_REGISTRY,
   modalCallbacks,
 } from "../constants";
+import type { BaseModalHandler, BaseModalHocProps } from "../types";
 import { BaseModalIdContext, useModalContext } from "../utils/contexts";
 import { getModalId, hide, register, remove, show } from "../utils/modal";
 
@@ -14,14 +14,20 @@ export function useModal(
   modal: string,
   args?: Record<string, unknown>,
 ): BaseModalHandler;
-export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
-  modal: React.ComponentType<P | (P & BaseModalHocProps)>,
+export function useModal<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>(
+  modal:
+    | React.ComponentType<P | (P & BaseModalHocProps)>
+    | React.ComponentType<P & BaseModalHocProps>,
   args?: Partial<P>,
 ): Omit<BaseModalHandler<P>, "show"> & {
   show: (args?: P) => Promise<unknown>;
 };
 
-export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
+export function useModal<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>(
   modal?: string | React.ComponentType<P>,
   args?: Partial<P> | Record<string, unknown>,
 ): BaseModalHandler<P> {
@@ -45,7 +51,7 @@ export function useModal<P extends Record<string, unknown> = Record<string, unkn
   // Use selective context subscription - only re-renders when this specific modal changes
   const modalInfo = useModalContext(mid);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: isUseComponent and mid are intentionally excluded to register only once
   useEffect(() => {
     // If use a component directly, register it.
     if (isUseComponent && !MODAL_REGISTRY[mid] && typeof modal !== "string") {

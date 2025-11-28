@@ -35,8 +35,10 @@ export interface BaseModalCallbacks {
   };
 }
 
-export interface BaseModalHandler<Props = Record<string, unknown>, ResolveValue = unknown>
-  extends BaseModalState {
+export interface BaseModalHandler<
+  Props = Record<string, unknown>,
+  ResolveValue = unknown,
+> extends BaseModalState {
   visible: boolean;
   keepMounted: boolean;
   show: (args?: Props) => Promise<ResolveValue>;
@@ -58,5 +60,5 @@ export type BaseModalArgs<T> = T extends
   | React.JSXElementConstructor<infer P>
   ? P
   : T extends React.ComponentType<infer P>
-  ? P
-  : Record<string, unknown>;
+    ? P
+    : Record<string, unknown>;

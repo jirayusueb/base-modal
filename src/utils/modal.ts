@@ -1,9 +1,9 @@
 import type { ComponentType } from "react";
 import {
-  MODAL_REGISTRY,
-  type ModalRegistryEntry,
   getUid,
   hideModalCallbacks,
+  MODAL_REGISTRY,
+  type ModalRegistryEntry,
   modalCallbacks,
   symModalId,
 } from "../constants";
@@ -37,7 +37,10 @@ export function register<P = Record<string, unknown>>(
   props?: Partial<P>,
 ): void {
   if (!MODAL_REGISTRY[id]) {
-    MODAL_REGISTRY[id] = { comp: comp as ComponentType, props } as ModalRegistryEntry;
+    MODAL_REGISTRY[id] = {
+      comp: comp as ComponentType,
+      props,
+    } as ModalRegistryEntry;
   } else {
     MODAL_REGISTRY[id].props = props;
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, useEffect, useRef } from "react";
 
 interface TestModalProps {
   visible?: boolean;

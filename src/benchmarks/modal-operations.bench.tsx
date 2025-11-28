@@ -1,6 +1,5 @@
 import { act, render } from "@testing-library/react";
-import React from "react";
-import { Provider, create, show, hide, remove } from "../index";
+import { create, hide, Provider, remove, show } from "../index";
 
 /**
  * Benchmark: Modal Operations Performance
@@ -108,9 +107,7 @@ test("benchmark: rapid modal operations", () => {
   const modalCount = 50;
   const modals = Array.from({ length: modalCount }, (_, i) => {
     const modalId = `modal-${i}`;
-    return (
-      <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />
-    );
+    return <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />;
   });
 
   render(<Provider>{modals}</Provider>);
@@ -147,9 +144,7 @@ test("benchmark: memory usage with many modals", () => {
   const modalCount = 100;
   const modals = Array.from({ length: modalCount }, (_, i) => {
     const modalId = `modal-${i}`;
-    return (
-      <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />
-    );
+    return <TestModal key={modalId} id={modalId} name={`Modal ${i}`} />;
   });
 
   // When: Render and show all modals
@@ -174,4 +169,3 @@ test("benchmark: memory usage with many modals", () => {
   // This test ensures operations complete without errors
   expect(true).toBe(true);
 });
-

@@ -1,8 +1,8 @@
 import React, { type ReactNode, useCallback, useMemo } from "react";
 import { useImmer } from "use-immer";
-import { BaseModalPlaceholder } from "../components/base-modal-placeholder";
-import type { BaseModalAction, BaseModalStore } from "../types";
+import { BaseModalPlaceholder } from "../components";
 import { ALREADY_MOUNTED, initialState } from "../constants";
+import type { BaseModalAction, BaseModalStore } from "../types";
 import { BaseModalContext } from "../utils/contexts";
 import { setDispatch } from "../utils/dispatch";
 
@@ -95,14 +95,15 @@ export function Provider({
   dispatch: givenDispatch,
   modals: givenModals,
 }: ProviderProps) {
+  // Memoize context value to prevent unnecessary re-renders
+  // Must be called before early return to follow hooks rules
+  const contextValue = useMemo(() => givenModals, [givenModals]);
+
   if (!givenDispatch || !givenModals) {
     return <InnerContextProvider>{children}</InnerContextProvider>;
   }
 
   setDispatch(givenDispatch);
-
-  // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => givenModals, [givenModals]);
 
   return (
     <BaseModalContext.Provider value={contextValue}>

@@ -7,4 +7,3 @@ let uidSeed = 0;
 export function getUid() {
   return `_base_modal_${uidSeed++}`;
 }
-
