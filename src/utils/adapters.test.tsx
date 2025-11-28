@@ -1,4 +1,3 @@
-/// <reference types="vitest/globals" />
 import { createModalHandler } from "./adapters";
 
 /**
@@ -27,4 +26,3 @@ describe("createModalHandler", () => {
     expect(Object.keys(handler)).toHaveLength(0);
   });
 });
-

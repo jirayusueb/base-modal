@@ -1,4 +1,4 @@
-import type { BaseModalStore } from "../types";
+import type { BaseModalStore } from "@/types";
 
 export const symModalId = Symbol("BaseModalId");
 export const initialState: BaseModalStore = {};

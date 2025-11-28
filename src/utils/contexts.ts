@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from "react";
-import { initialState } from "../constants";
-import type { BaseModalState, BaseModalStore } from "../types";
+import { initialState } from "@/constants";
+import type { BaseModalState, BaseModalStore } from "@/types";
 
 export const BaseModalContext = createContext<BaseModalStore>(initialState);
 export const BaseModalIdContext = createContext<string | null>(null);

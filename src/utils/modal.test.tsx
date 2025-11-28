@@ -1,4 +1,4 @@
-import * as constantsModule from "../constants";
+import * as constantsModule from "@/constants";
 import { getModal, getModalId, register, unregister } from "./modal";
 
 /**

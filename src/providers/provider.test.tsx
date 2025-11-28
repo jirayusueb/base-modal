@@ -1,8 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
 import { Fragment } from "react";
-import BaseModal, { create, Provider, setFlags, useModal } from "../index";
-import { ErrorBoundary, TestModal } from "../tests";
-import { dispatch } from "../utils/dispatch";
+import BaseModal, { create, Provider, setFlags, useModal } from "@/index";
+import { ErrorBoundary, TestModal } from "@/tests";
+import { dispatch } from "@/utils/dispatch";
 
 /**
  * Test Perspective Table for Provider

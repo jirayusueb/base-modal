@@ -1,4 +1,3 @@
-/// <reference types="vitest/globals" />
 import {
   act,
   render,
@@ -113,4 +112,3 @@ describe("global API", () => {
     await waitForElementToBeRemoved(screen.queryByText("HocTestModal"));
   });
 });
-

@@ -1,4 +1,4 @@
-import type { BaseModalAction } from "../types";
+import type { BaseModalAction } from "@/types";
 
 export let dispatch: (action: BaseModalAction) => void = () => {
   throw new Error(

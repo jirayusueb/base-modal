@@ -6,8 +6,8 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import React from "react";
-import BaseModal, { create, Provider, useModal } from "../../index";
-import type { BaseModalHandler } from "../../types";
+import BaseModal, { create, Provider, useModal } from "@/index";
+import type { BaseModalHandler } from "@/types";
 
 export const delay = (t: number) =>
   new Promise((resolve) => setTimeout(resolve, t));

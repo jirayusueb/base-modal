@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react";
-import { ALREADY_MOUNTED, MODAL_REGISTRY } from "../constants";
-import { useModalContext } from "../utils/contexts";
+import { ALREADY_MOUNTED, MODAL_REGISTRY } from "@/constants";
+import { useModalContext } from "@/utils/contexts";
 
 function BaseModalPlaceholderComponent() {
   // Get all modals - this component needs to see all modals to render them

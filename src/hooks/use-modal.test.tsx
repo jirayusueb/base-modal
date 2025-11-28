@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
-import { create, ModalDef, Provider, register, useModal } from "../index";
-import { TestModal, testUseModal } from "../tests";
+import { create, ModalDef, Provider, register, useModal } from "@/index";
+import { TestModal, testUseModal } from "@/tests";
 
 const HocTestModal = create(({ name = "nate" }: { name?: string }) => {
   const modal = useModal();

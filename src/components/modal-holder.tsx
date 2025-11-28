@@ -1,7 +1,7 @@
 import type React from "react";
 import { useCallback, useMemo } from "react";
-import { getUid, MODAL_REGISTRY } from "../constants";
-import { hide, show } from "../utils/modal";
+import { getUid, MODAL_REGISTRY } from "@/constants";
+import { hide, show } from "@/utils/modal";
 
 export interface ModalHandler {
   show: (args?: Record<string, unknown>) => Promise<unknown>;

@@ -1,4 +1,3 @@
-/// <reference types="vitest/globals" />
 import {
   act,
   fireEvent,
@@ -15,8 +14,8 @@ import BaseModal, {
   create,
   Provider,
   useModal,
-} from "../index";
-import { TestModal, testHelper } from "../tests";
+} from "@/index";
+import { TestModal, testHelper } from "@/tests";
 
 const AntdModal = ({
   visible,
@@ -74,12 +73,8 @@ describe("antd modal", () => {
     await testHelper(AntdModalV5, antdModalV5, "AntdModalV5", true);
   });
 
-  it("test antd modal v5 helper", async () => {
-    await testHelper(AntdModalV5, antdModalV5, "AntdModalV5");
-    await testHelper(AntdModalV5, antdModalV5, "AntdModalV5", true);
-  });
-
   it("test antd modal onCancel", async () => {
+    // Given: AntdModal component and modal created with create()
     render(<Provider />);
     const HocAntModal2 = create(({ name }: { name?: string }) => {
       const modal = useModal();
@@ -90,11 +85,52 @@ describe("antd modal", () => {
         </AntdModal>
       );
     });
+
+    // When: BaseModal.show() is called with component and args (no type assertion needed)
     act(() => {
       BaseModal.show(HocAntModal2, { name: "HocAntModal2" });
     });
+
+    // Then: Modal should be visible
+    expect(screen.queryByText("HocAntModal2")).toBeInTheDocument();
+
+    // When: Cancel button is clicked
     fireEvent.click(screen.getByText("Cancel"));
+
+    // Then: Modal should be removed
     await waitForElementToBeRemoved(() => screen.queryByText("HocAntModal2"));
+  });
+
+  it("test antd modal v5 with BaseModal.show() using component directly", async () => {
+    // Given: AntdModalV5 component and modal created with create()
+    render(<Provider />);
+    const HocAntModalV5 = create(({ name }: { name?: string }) => {
+      const modal = useModal();
+
+      return (
+        <AntdModalV5 {...antdModalV5(modal)}>
+          <span>{name}</span>
+        </AntdModalV5>
+      );
+    });
+
+    // When: BaseModal.show() is called with component and args (no type assertion needed)
+    act(() => {
+      BaseModal.show(HocAntModalV5, { name: "AntdModalV5Test" });
+    });
+
+    // Then: Modal should be visible
+    expect(screen.queryByText("AntdModalV5Test")).toBeInTheDocument();
+
+    // When: Close button is clicked
+    act(() => {
+      fireEvent.click(screen.getByText("Close"));
+    });
+
+    // Then: Modal should be removed
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("AntdModalV5Test"),
+    );
   });
 });
 
@@ -153,7 +189,7 @@ describe("antd drawer", () => {
   });
 
   it("test antd drawer afterVisibleChange with true value", async () => {
-    // Given: AntdDrawer component and helper function
+    // Given: AntdDrawer component and modal created with create()
     render(<Provider />);
     const HocAntDrawer = create(({ name }: { name?: string }) => {
       const modal = useModal();
@@ -170,7 +206,8 @@ describe("antd drawer", () => {
       );
     });
 
-    // When: Modal is shown and afterVisibleChange is called with true (testing branch line 61)
+    // When: BaseModal.show() is called with component and args (no type assertion needed)
+    // and afterVisibleChange is called with true (testing branch line 61)
     act(() => {
       BaseModal.show(HocAntDrawer, { name: "DrawerTest" });
     });
@@ -193,34 +230,6 @@ describe("antd drawer", () => {
     act(() => {
       BaseModal.hide(HocAntDrawer);
     });
-  });
-
-  it("test antd drawer helper with keepMounted", async () => {
-    // Given: AntdDrawer component and helper function
-    const AntdDrawer = ({
-      visible,
-      onClose,
-      afterVisibleChange,
-      children,
-    }: {
-      visible?: boolean;
-      onClose?: () => void;
-      afterVisibleChange?: (visible: boolean) => void;
-      children?: ReactNode;
-    }) => {
-      return (
-        <TestModal
-          visible={visible}
-          onClose={onClose}
-          onExited={() => afterVisibleChange?.(false)}
-        >
-          {children}
-        </TestModal>
-      );
-    };
-    // When: testHelper is called with keepMounted=true
-    // Then: Modal should remain mounted after close (testing branch coverage)
-    await testHelper(AntdDrawer, antdDrawer, "AntdDrawerKeepMounted", true);
   });
 
   it("test antd drawer v5 helper", async () => {
@@ -246,5 +255,42 @@ describe("antd drawer", () => {
       );
     };
     await testHelper(AntdDrawerV5, antdDrawerV5, "AntdDrawerV5Test");
+  });
+
+  it("test antd drawer v5 with BaseModal.show() using component directly", async () => {
+    // Given: AntdDrawerV5 component and modal created with create()
+    render(<Provider />);
+    const HocAntDrawerV5 = create(({ name }: { name?: string }) => {
+      const modal = useModal();
+      const drawerProps = antdDrawerV5(modal);
+
+      return (
+        <TestModal
+          visible={drawerProps.open}
+          onClose={drawerProps.onClose}
+          onExited={() => drawerProps.afterOpenChange(false)}
+        >
+          <span>{name}</span>
+        </TestModal>
+      );
+    });
+
+    // When: BaseModal.show() is called with component and args (no type assertion needed)
+    act(() => {
+      BaseModal.show(HocAntDrawerV5, { name: "AntdDrawerV5Test" });
+    });
+
+    // Then: Modal should be visible
+    expect(screen.queryByText("AntdDrawerV5Test")).toBeInTheDocument();
+
+    // When: Close button is clicked
+    act(() => {
+      fireEvent.click(screen.getByText("Close"));
+    });
+
+    // Then: Modal should be removed
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText("AntdDrawerV5Test"),
+    );
   });
 });

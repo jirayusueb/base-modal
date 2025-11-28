@@ -1,4 +1,3 @@
-/// <reference types="vitest/globals" />
 import {
   act,
   render,
@@ -12,8 +11,8 @@ import {
   Provider,
   register,
   useModal,
-} from "../index";
-import { TestModal } from "../tests";
+} from "@/index";
+import { TestModal } from "@/tests";
 
 /**
  * Test Perspective Table for ModalHolder
@@ -398,4 +397,3 @@ describe("Handler edge cases", () => {
     expect(typeof handler.show).toBe("function");
   });
 });
-

@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, FC } from "react";
 import {
   getUid,
   hideModalCallbacks,
@@ -6,18 +6,18 @@ import {
   type ModalRegistryEntry,
   modalCallbacks,
   symModalId,
-} from "../constants";
-import type { BaseModalHocProps } from "../types";
+} from "@/constants";
+import type { BaseModalHocProps } from "@/types";
 import { dispatch } from "./dispatch";
 import { hideModal, removeModal, setModalFlags, showModal } from "./reducer";
 
 export function getModalId<P = Record<string, unknown>>(
-  modal: string | ComponentType<P>,
+  modal: string | ComponentType<P> | FC<P & BaseModalHocProps>,
 ): string {
   if (typeof modal === "string") {
     return modal;
   }
-  const component = modal as React.ComponentType<P> & {
+  const component = modal as (ComponentType<P> | FC<P & BaseModalHocProps>) & {
     [symModalId]?: string;
   };
   if (!component[symModalId]) {
@@ -33,7 +33,7 @@ export function getModalId<P = Record<string, unknown>>(
 
 export function register<P = Record<string, unknown>>(
   id: string,
-  comp: ComponentType<P>,
+  comp: ComponentType<P> | FC<P & BaseModalHocProps>,
   props?: Partial<P>,
 ): void {
   if (!MODAL_REGISTRY[id]) {
@@ -50,13 +50,33 @@ export function unregister(id: string): void {
   delete MODAL_REGISTRY[id];
 }
 
+// Overload for string ID
+export function show(
+  modal: string,
+  args?: Record<string, unknown>,
+): Promise<unknown>;
+// Overload for components created with create() - FC<P & BaseModalHocProps>
+export function show<P extends Record<string, unknown>>(
+  modal: FC<P & BaseModalHocProps>,
+  args?: P,
+): Promise<unknown>;
+// Overload for regular ComponentType
+export function show<P extends Record<string, unknown>>(
+  modal: ComponentType<P>,
+  args?: P,
+): Promise<unknown>;
+// Implementation
 export function show<P = Record<string, unknown>>(
-  modal: React.ComponentType<P | (P & BaseModalHocProps)> | string,
+  modal: FC<P & BaseModalHocProps> | ComponentType<P> | string,
   args?: P,
 ): Promise<unknown> {
   const modalId = getModalId<P>(modal);
   if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
-    register(modalId, modal, args);
+    register(
+      modalId,
+      modal as ComponentType<P> | FC<P & BaseModalHocProps>,
+      args,
+    );
   }
 
   dispatch(showModal(modalId, args as Record<string, unknown>));

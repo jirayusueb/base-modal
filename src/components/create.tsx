@@ -1,9 +1,9 @@
 import { type ComponentType, type FC, useEffect } from "react";
-import { ALREADY_MOUNTED } from "../constants";
-import { useModal } from "../hooks/use-modal";
-import type { BaseModalHocProps } from "../types";
-import { BaseModalIdContext, useModalContext } from "../utils/contexts";
-import { setFlags } from "../utils/modal";
+import { ALREADY_MOUNTED } from "@/constants";
+import { useModal } from "@/hooks/use-modal";
+import type { BaseModalHocProps } from "@/types";
+import { BaseModalIdContext, useModalContext } from "@/utils/contexts";
+import { setFlags } from "@/utils/modal";
 
 export function create<P extends {}>(
   Comp: ComponentType<P>,

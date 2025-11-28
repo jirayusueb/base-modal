@@ -1,5 +1,5 @@
-
-import { reducer } from "../index";
+import type { BaseModalAction, BaseModalStore } from "@/types";
+import { applyActionToDraft, reducer } from "@/utils/reducer";
 
 /**
  * Test Perspective Table for Reducer
@@ -282,3 +282,256 @@ describe("set-flags action", () => {
   });
 });
 
+describe("applyActionToDraft", () => {
+  it("show action updates draft correctly", () => {
+    // Given: Empty draft and valid show action
+    const draft: BaseModalStore = {};
+    const showAction: BaseModalAction = {
+      type: "base-modal/show",
+      payload: {
+        modalId: "test-modal",
+        args: { name: "test" },
+      },
+    };
+
+    // When: applyActionToDraft processes show action
+    applyActionToDraft(draft, showAction);
+
+    // Then: Draft should contain modal with correct structure
+    expect(draft).toHaveProperty("test-modal");
+    expect(draft["test-modal"]).toMatchObject({
+      id: "test-modal",
+      args: { name: "test" },
+    });
+  });
+
+  it("hide action sets visible to false in draft", () => {
+    // Given: Draft with visible modal
+    const draft: BaseModalStore = {
+      "test-modal": {
+        id: "test-modal",
+        visible: true,
+        args: {},
+      },
+    };
+    const hideAction: BaseModalAction = {
+      type: "base-modal/hide",
+      payload: { modalId: "test-modal" },
+    };
+
+    // When: applyActionToDraft processes hide action
+    applyActionToDraft(draft, hideAction);
+
+    // Then: Modal visible should be false
+    expect(draft["test-modal"]?.visible).toBe(false);
+  });
+
+  it("hide action with non-existent modalId does nothing", () => {
+    // Given: Draft without the target modal
+    const draft: BaseModalStore = {
+      "other-modal": { id: "other-modal", visible: true },
+    };
+    const hideAction: BaseModalAction = {
+      type: "base-modal/hide",
+      payload: { modalId: "non-existent" },
+    };
+
+    // When: applyActionToDraft processes hide action for non-existent modal
+    const before = { ...draft };
+    applyActionToDraft(draft, hideAction);
+
+    // Then: Draft should remain unchanged
+    expect(draft).toEqual(before);
+  });
+
+  it("remove action removes modal from draft", () => {
+    // Given: Draft with a modal
+    const draft: BaseModalStore = {
+      "test-modal": { id: "test-modal", visible: true },
+      "other-modal": { id: "other-modal", visible: true },
+    };
+    const removeAction: BaseModalAction = {
+      type: "base-modal/remove",
+      payload: { modalId: "test-modal" },
+    };
+
+    // When: applyActionToDraft processes remove action
+    applyActionToDraft(draft, removeAction);
+
+    // Then: Target modal should be removed, other modals remain
+    expect(draft).not.toHaveProperty("test-modal");
+    expect(draft).toHaveProperty("other-modal");
+  });
+
+  it("set-flags action merges flags into modal state in draft", () => {
+    // Given: Draft with a modal
+    const draft: BaseModalStore = {
+      "test-modal": { id: "test-modal", visible: true },
+    };
+    const setFlagsAction: BaseModalAction = {
+      type: "base-modal/set-flags",
+      payload: {
+        modalId: "test-modal",
+        flags: { keepMounted: true },
+      },
+    };
+
+    // When: applyActionToDraft processes set-flags action
+    applyActionToDraft(draft, setFlagsAction);
+
+    // Then: Flags should be merged into modal state
+    expect(draft["test-modal"]).toMatchObject({
+      id: "test-modal",
+      visible: true,
+      keepMounted: true,
+    });
+  });
+
+  it("set-flags action with non-existent modal and keepMounted true creates modal", () => {
+    // Given: Empty draft and set-flags action for non-existent modal with keepMounted
+    const draft: BaseModalStore = {};
+    const setFlagsAction: BaseModalAction = {
+      type: "base-modal/set-flags",
+      payload: {
+        modalId: "new-modal",
+        flags: { keepMounted: true, customFlag: "value" },
+      },
+    };
+
+    // When: applyActionToDraft processes set-flags action for non-existent modal with keepMounted
+    applyActionToDraft(draft, setFlagsAction);
+
+    // Then: Modal should be created with visible: false and keepMounted: true
+    expect(draft).toHaveProperty("new-modal");
+    expect(draft["new-modal"]).toMatchObject({
+      id: "new-modal",
+      visible: false,
+      keepMounted: true,
+      customFlag: "value",
+    });
+  });
+
+  it("invalid action type does nothing", () => {
+    // Given: Draft with some data and an invalid action type
+    const draft: BaseModalStore = { p1: "something" } as any;
+    const invalidAction = { type: "some-action" } as any;
+
+    // When: applyActionToDraft is called with invalid action
+    const before = { ...draft };
+    applyActionToDraft(draft, invalidAction);
+
+    // Then: Draft should remain unchanged
+    expect(draft).toEqual(before);
+  });
+});
+
+describe("reducer and applyActionToDraft consistency", () => {
+  it("reducer and applyActionToDraft produce identical results for show action", () => {
+    // Given: Same initial state and action
+    const initialState: BaseModalStore = {};
+    const action: BaseModalAction = {
+      type: "base-modal/show",
+      payload: {
+        modalId: "test-modal",
+        args: { name: "test" },
+      },
+    };
+
+    // When: Using reducer (returns new state)
+    const result1 = reducer(initialState, action);
+
+    // When: Using applyActionToDraft (mutates draft)
+    const draft: BaseModalStore = { ...initialState };
+    applyActionToDraft(draft, action);
+
+    // Then: Results should be identical
+    expect(draft).toEqual(result1);
+  });
+
+  it("reducer and applyActionToDraft produce identical results for hide action", () => {
+    // Given: Same initial state and action
+    const initialState: BaseModalStore = {
+      "test-modal": {
+        id: "test-modal",
+        visible: true,
+        args: {},
+      },
+    };
+    const action: BaseModalAction = {
+      type: "base-modal/hide",
+      payload: { modalId: "test-modal" },
+    };
+
+    // When: Using reducer (returns new state)
+    const result1 = reducer(initialState, action);
+
+    // When: Using applyActionToDraft (mutates draft)
+    const draft: BaseModalStore = { ...initialState };
+    applyActionToDraft(draft, action);
+
+    // Then: Results should be identical
+    expect(draft).toEqual(result1);
+  });
+
+  it("reducer and applyActionToDraft produce identical results for remove action", () => {
+    // Given: Same initial state and action
+    const initialState: BaseModalStore = {
+      "test-modal": { id: "test-modal", visible: true },
+      "other-modal": { id: "other-modal", visible: true },
+    };
+    const action: BaseModalAction = {
+      type: "base-modal/remove",
+      payload: { modalId: "test-modal" },
+    };
+
+    // When: Using reducer (returns new state)
+    const result1 = reducer(initialState, action);
+
+    // When: Using applyActionToDraft (mutates draft)
+    const draft: BaseModalStore = { ...initialState };
+    applyActionToDraft(draft, action);
+
+    // Then: Results should be identical
+    expect(draft).toEqual(result1);
+  });
+
+  it("reducer and applyActionToDraft produce identical results for set-flags action", () => {
+    // Given: Same initial state and action
+    const initialState: BaseModalStore = {
+      "test-modal": { id: "test-modal", visible: true },
+    };
+    const action: BaseModalAction = {
+      type: "base-modal/set-flags",
+      payload: {
+        modalId: "test-modal",
+        flags: { keepMounted: true },
+      },
+    };
+
+    // When: Using reducer (returns new state)
+    const result1 = reducer(initialState, action);
+
+    // When: Using applyActionToDraft (mutates draft)
+    const draft: BaseModalStore = { ...initialState };
+    applyActionToDraft(draft, action);
+
+    // Then: Results should be identical
+    expect(draft).toEqual(result1);
+  });
+
+  it("reducer and applyActionToDraft produce identical results for invalid action", () => {
+    // Given: Same initial state and invalid action
+    const initialState: BaseModalStore = { p1: "something" } as any;
+    const invalidAction = { type: "some-action" } as any;
+
+    // When: Using reducer (returns new state)
+    const result1 = reducer(initialState, invalidAction);
+
+    // When: Using applyActionToDraft (mutates draft)
+    const draft: BaseModalStore = { ...initialState };
+    applyActionToDraft(draft, invalidAction);
+
+    // Then: Results should be identical
+    expect(draft).toEqual(result1);
+  });
+});
