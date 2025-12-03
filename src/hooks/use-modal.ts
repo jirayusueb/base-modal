@@ -1,27 +1,41 @@
-import { useCallback, useContext, useEffect, useMemo } from "react";
 import type React from "react";
-import type { BaseModalHandler, BaseModalHocProps } from "../types";
 import {
-  MODAL_REGISTRY,
-  hideModalCallbacks,
-  modalCallbacks,
-} from "../constants";
-import { BaseModalIdContext, useModalContext } from "../utils/contexts";
-import { getModalId, hide, register, remove, show } from "../utils/modal";
+  type FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { hideModalCallbacks } from "@/constants";
+import type { BaseModalHandler, BaseModalHocProps } from "@/types";
+import type { ModalState } from "@/types/patterns";
+import { BaseModalIdContext } from "@/utils/contexts";
+import { ModalIdNotFoundError } from "@/utils/errors";
+import { logger } from "@/utils/logger";
+import { getModalId, hide, register, remove, show } from "@/utils/modal";
+import { ModalRegistry } from "@/utils/registry";
+import { ModalStateObserver } from "@/utils/state-manager";
 
 export function useModal(): BaseModalHandler;
 export function useModal(
   modal: string,
   args?: Record<string, unknown>,
 ): BaseModalHandler;
-export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
-  modal: React.ComponentType<P | (P & BaseModalHocProps)>,
+export function useModal<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>(
+  modal:
+    | React.ComponentType<P | (P & BaseModalHocProps)>
+    | React.ComponentType<P & BaseModalHocProps>,
   args?: Partial<P>,
 ): Omit<BaseModalHandler<P>, "show"> & {
   show: (args?: P) => Promise<unknown>;
 };
 
-export function useModal<P extends Record<string, unknown> = Record<string, unknown>>(
+export function useModal<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>(
   modal?: string | React.ComponentType<P>,
   args?: Partial<P> | Record<string, unknown>,
 ): BaseModalHandler<P> {
@@ -37,46 +51,72 @@ export function useModal<P extends Record<string, unknown> = Record<string, unkn
   }
 
   if (!modalId) {
-    throw new Error("No modal id found in BaseModal.useModal.");
+    throw new ModalIdNotFoundError();
   }
 
   const mid = modalId;
+  const registry = ModalRegistry.getInstance();
 
-  // Use selective context subscription - only re-renders when this specific modal changes
-  const modalInfo = useModalContext(mid);
+  // Subscribe to registry state via Observer pattern
+  const [modalInfo, setModalInfo] = useState<ModalState | undefined>(
+    registry.getState(mid),
+  );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    // If use a component directly, register it.
-    if (isUseComponent && !MODAL_REGISTRY[mid] && typeof modal !== "string") {
-      register(mid, modal as React.ComponentType<P>, args as Partial<P>);
+    // Initial sync
+    setModalInfo(registry.getState(mid));
+
+    const observer = new ModalStateObserver(mid, (newState) => {
+      setModalInfo(newState);
+    });
+
+    logger.debug(`useModal subscribing to ${mid}`);
+    return registry.subscribe(mid, observer);
+  }, [mid, registry]);
+
+  // Register component if needed
+  useEffect(() => {
+    if (
+      isUseComponent &&
+      !registry.getState(mid) &&
+      typeof modal !== "string"
+    ) {
+      register(
+        mid,
+        modal as React.ComponentType<P> | FC<P & BaseModalHocProps>,
+        args as Partial<P>,
+      );
     }
-  }, [isUseComponent, mid]);
+  }, [isUseComponent, mid, modal, args, registry]);
 
   const showCallback = useCallback(
-    (args?: P | Record<string, unknown>) => show<P>(mid, args as P),
-    [mid],
+    (args?: P | Record<string, unknown>) => show(mid, args as P),
+    [mid, registry],
   );
   const hideCallback = useCallback(() => hide(mid), [mid]);
   const removeCallback = useCallback(() => remove(mid), [mid]);
+
   const resolveCallback = useCallback(
     (args?: unknown) => {
-      modalCallbacks[mid]?.resolve(args);
-      delete modalCallbacks[mid];
+      const state = registry.getState(mid);
+      state?.promise?.resolve(args);
     },
-    [mid],
+    [mid, registry],
   );
+
   const rejectCallback = useCallback(
     (args?: unknown) => {
-      modalCallbacks[mid]?.reject(args);
-      delete modalCallbacks[mid];
+      const state = registry.getState(mid);
+      state?.promise?.reject(args);
     },
-    [mid],
+    [mid, registry],
   );
+
   const resolveHide = useCallback(
     (args?: unknown) => {
       hideModalCallbacks[mid]?.resolve(args);
       delete hideModalCallbacks[mid];
+      hide(mid);
     },
     [mid],
   );
@@ -84,9 +124,10 @@ export function useModal<P extends Record<string, unknown> = Record<string, unkn
   return useMemo(
     () => ({
       id: mid,
-      args: modalInfo?.args,
+      args: modalInfo?.props,
       visible: !!modalInfo?.visible,
       keepMounted: !!modalInfo?.keepMounted,
+      delayVisible: modalInfo?.delayVisible,
       show: showCallback,
       hide: hideCallback,
       remove: removeCallback,
@@ -96,9 +137,10 @@ export function useModal<P extends Record<string, unknown> = Record<string, unkn
     }),
     [
       mid,
-      modalInfo?.args,
+      modalInfo?.props,
       modalInfo?.visible,
       modalInfo?.keepMounted,
+      modalInfo?.delayVisible,
       showCallback,
       hideCallback,
       removeCallback,

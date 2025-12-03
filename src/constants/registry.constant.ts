@@ -8,4 +8,3 @@ export interface ModalRegistryEntry<P = Record<string, unknown>> {
 export const MODAL_REGISTRY: {
   [id: string]: ModalRegistryEntry;
 } = {};
-

@@ -286,6 +286,7 @@ Base Modal is optimized for performance:
 - **Selective Context Subscriptions** - Components only re-render when their specific modal changes
 - **Memoization** - Components and context values are memoized to prevent unnecessary re-renders
 - **Efficient State Management** - Uses Immer for immutable updates with minimal overhead
+- **Internal Architecture** - Implements **Singleton** pattern for the registry and **Observer** pattern for state updates to ensure a single source of truth and efficient event propagation.
 
 ### Benchmarks
 

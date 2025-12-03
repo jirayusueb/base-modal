@@ -13,20 +13,20 @@ import {
   hide,
   muiDialog,
   muiDialogV5,
+  reducer,
   register,
   remove,
-  reducer,
   show,
   unregister,
 } from "./utils";
 
-export * from "./types";
-export * from "./constants";
-export * from "./utils";
-export * from "./hooks";
-export * from "./components";
-export * from "./providers";
 export type { ModalHandler } from "./components";
+export * from "./components";
+export * from "./constants";
+export * from "./hooks";
+export * from "./providers";
+export * from "./types";
+export * from "./utils";
 
 const BaseModal = {
   Provider,

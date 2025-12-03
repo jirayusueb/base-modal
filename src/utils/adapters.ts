@@ -1,9 +1,7 @@
-import type { BaseModalHandler, BaseModalHocProps } from "../types";
+import type { BaseModalHandler, BaseModalHocProps } from "@/types";
 
 export interface CreateModalHandlerReturn<P = Record<string, unknown>> {
-  show: (
-    args?: Omit<P, keyof BaseModalHocProps>,
-  ) => Promise<unknown>;
+  show: (args?: Omit<P, keyof BaseModalHocProps>) => Promise<unknown>;
   hide: () => void;
 }
 
