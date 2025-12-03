@@ -4,17 +4,18 @@ import { useModal } from "@/hooks/use-modal";
 import type { BaseModalHocProps } from "@/types";
 import { BaseModalIdContext, useModalContext } from "@/utils/contexts";
 import { setFlags } from "@/utils/modal";
+import { ModalRegistry } from "@/utils/registry";
 
 export function create<P extends {}>(
   Comp: ComponentType<P>,
 ): FC<P & BaseModalHocProps> {
   return ({ defaultVisible, keepMounted, id, ...props }) => {
-    const { args, show } = useModal(id);
+    const modal = useModal(id);
+    const { args, show, delayVisible } = modal;
 
-    // Use selective context subscription - only re-renders when this specific modal changes
+    // Use selective context subscription for backward compatibility
     const modalState = useModalContext(id);
     const shouldMount = !!modalState;
-    const delayVisible = modalState?.delayVisible;
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: id and defaultVisible are intentionally excluded to run only on mount/unmount
     useEffect(() => {
@@ -33,6 +34,18 @@ export function create<P extends {}>(
     useEffect(() => {
       if (keepMounted) {
         setFlags(id, { keepMounted: true });
+        // Ensure modal is registered when keepMounted is true
+        const registry = ModalRegistry.getInstance();
+        if (!registry.getState(id)) {
+          registry.register(id, {
+            id,
+            visible: false,
+            keepMounted: true,
+            props: {},
+            promise: null,
+            resolvedValue: undefined,
+          });
+        }
       }
     }, [id, keepMounted]);
 
@@ -47,7 +60,8 @@ export function create<P extends {}>(
       }
     }, [delayVisible]);
 
-    if (!shouldMount) {
+    // Mount if: modal exists in context OR keepMounted is explicitly true
+    if (!shouldMount && !keepMounted) {
       return null;
     }
 

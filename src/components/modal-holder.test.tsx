@@ -75,7 +75,7 @@ describe("ModalHolder initialization", () => {
     // When: ModalHolder is rendered with component directly and handler
     render(
       <Provider>
-        <ModalHolder modal={TestModalComponent} handler={handler} />
+        <ModalHolder modal={TestModalComponent as any} handler={handler} />
       </Provider>,
     );
 

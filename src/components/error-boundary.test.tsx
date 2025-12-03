@@ -1,11 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { vi } from "vitest";
+import { BaseModalError, ModalNotFoundError } from "@/utils/errors";
 import { ErrorBoundary } from "./error-boundary";
-import {
-  BaseModalError,
-  ModalNotFoundError,
-} from "@/utils/errors";
 
 /**
  * Test Perspective Table for ErrorBoundary Component
@@ -91,14 +88,16 @@ describe("ErrorBoundary", () => {
 
     // Then: BaseModalError UI should be displayed with code
     expect(screen.getByText("Modal Error")).toBeInTheDocument();
-    expect(screen.getByText(/Modal with id "test-modal" not found/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Modal with id "test-modal" not found/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Error Code: MODAL_NOT_FOUND/)).toBeInTheDocument();
   });
 
   it("ErrorBoundary with custom fallback", () => {
     // Given: ErrorBoundary with custom fallback function
     const error = new Error("Test error");
-    const fallback = vi.fn((err: Error, errorInfo: React.ErrorInfo) => (
+    const fallback = vi.fn((err: Error, _errorInfo: React.ErrorInfo) => (
       <div>Custom error: {err.message}</div>
     ));
 
@@ -118,10 +117,6 @@ describe("ErrorBoundary", () => {
     // Given: ErrorBoundary with onError callback
     const error = new Error("Test error");
     const onError = vi.fn();
-    const errorInfo = {
-      componentStack: "Test stack",
-    } as React.ErrorInfo;
-
     // When: Component throws error
     render(
       <ErrorBoundary onError={onError}>
@@ -142,7 +137,9 @@ describe("ErrorBoundary", () => {
   it("ErrorBoundary logs BaseModalError correctly", () => {
     // Given: ErrorBoundary with BaseModalError
     const error = new ModalNotFoundError("test-modal");
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     // When: Component throws BaseModalError
     render(
@@ -163,7 +160,9 @@ describe("ErrorBoundary", () => {
   it("ErrorBoundary logs generic Error correctly", () => {
     // Given: ErrorBoundary with generic Error
     const error = new Error("Generic error");
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     // When: Component throws generic Error
     render(
@@ -210,7 +209,9 @@ describe("ErrorBoundary", () => {
 
     // Then: Default message should be displayed
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument();
+    expect(
+      screen.getByText("An unexpected error occurred"),
+    ).toBeInTheDocument();
   });
 
   it("ErrorBoundary with null children", () => {
@@ -225,9 +226,7 @@ describe("ErrorBoundary", () => {
   it("ErrorBoundary with undefined children", () => {
     // Given: ErrorBoundary with undefined children
     // When: Component is rendered
-    const { container } = render(
-      <ErrorBoundary>{undefined}</ErrorBoundary>,
-    );
+    const { container } = render(<ErrorBoundary>{undefined}</ErrorBoundary>);
 
     // Then: Should render without error
     expect(container.firstChild).toBeNull();
@@ -258,4 +257,3 @@ describe("ErrorBoundary", () => {
     expect(receivedErrorInfo?.componentStack).toBeDefined();
   });
 });
-

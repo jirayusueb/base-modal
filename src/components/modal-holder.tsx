@@ -1,11 +1,9 @@
 import type React from "react";
 import { useCallback, useMemo } from "react";
-import { getUid, MODAL_REGISTRY } from "@/constants";
-import {
-  ModalHandlerNotFoundError,
-  ModalNotFoundError,
-} from "@/utils/errors";
+import { getUid } from "@/constants";
+import { ModalHandlerNotFoundError, ModalNotFoundError } from "@/utils/errors";
 import { hide, show } from "@/utils/modal";
+import { ModalRegistry } from "@/utils/registry";
 
 export interface ModalHandler {
   show: (args?: Record<string, unknown>) => Promise<unknown>;
@@ -29,14 +27,14 @@ interface ModalHolderProps<P = Record<string, unknown>> {
  * @param handler - The handler object to control the modal.
  * @returns
  */
-export function ModalHolder<P = Record<string, unknown>>({
-  modal,
-  handler,
-  ...restProps
-}: ModalHolderProps<P>) {
+export function ModalHolder<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>({ modal, handler, ...restProps }: ModalHolderProps<P>) {
   const mid = useMemo(() => getUid(), []);
   const ModalComp =
-    typeof modal === "string" ? MODAL_REGISTRY[modal]?.comp : modal;
+    typeof modal === "string"
+      ? ModalRegistry.getInstance().getState(modal)?.comp
+      : modal;
 
   if (handler === null) {
     throw new ModalHandlerNotFoundError();
@@ -48,7 +46,7 @@ export function ModalHolder<P = Record<string, unknown>>({
 
   const actualHandler = handler ?? ({} as ModalHandler);
   actualHandler.show = useCallback(
-    (args?: Record<string, unknown>) => show<P>(mid, args as P),
+    (args?: Record<string, unknown>) => show(mid, args),
     [mid],
   );
   actualHandler.hide = useCallback(() => hide<P>(mid), [mid]);

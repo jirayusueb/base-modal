@@ -15,7 +15,6 @@ export default defineConfig({
     setupFiles: "./src/tests/setup.ts",
     include: [
       "src/**/*.{test,spec}.?(c|m)[jt]s?(x)",
-      "src/benchmarks/**/*.bench.tsx",
     ],
     testTimeout: 30000,
     coverage: {

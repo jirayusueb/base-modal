@@ -48,7 +48,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:ui": "vitest --ui --coverage",
-    "benchmark": "vitest run src/benchmarks/run.bench.tsx",
+    "benchmark": "vitest bench src/benchmarks/run.bench.tsx",
     "benchmark:watch": "vitest src/benchmarks/run.bench.tsx",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",

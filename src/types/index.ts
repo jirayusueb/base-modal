@@ -4,8 +4,10 @@ export interface BaseModalState {
   id: string;
   args?: Record<string, unknown>;
   visible?: boolean;
-  delayVisible?: boolean;
   keepMounted?: boolean;
+  delayVisible?: boolean;
+  isMounted?: boolean;
+  props?: Record<string, unknown>;
 }
 
 export interface BaseModalStore {

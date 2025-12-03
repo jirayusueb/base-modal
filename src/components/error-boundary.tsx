@@ -58,7 +58,9 @@ export class ErrorBoundary extends React.Component<
           <div className="base-modal-error-title">Modal Error</div>
           <div className="base-modal-error-message">{error.message}</div>
           {error.code && (
-            <div className="base-modal-error-code">Error Code: {error.code}</div>
+            <div className="base-modal-error-code">
+              Error Code: {error.code}
+            </div>
           )}
         </div>
       );
@@ -77,10 +79,7 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError && this.state.error) {
       if (this.props.fallback) {
-        return this.props.fallback(
-          this.state.error,
-          this.state.errorInfo!,
-        );
+        return this.props.fallback(this.state.error, this.state.errorInfo!);
       }
       return this.renderDefaultError();
     }
@@ -88,4 +87,3 @@ export class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
-

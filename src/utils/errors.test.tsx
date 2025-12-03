@@ -241,4 +241,3 @@ describe("Error inheritance", () => {
     expect(uniqueCodes.size).toBe(errorCodes.length);
   });
 });
-

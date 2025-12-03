@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect } from "react";
-import { register, unregister } from "@/utils/modal";
+import { ModalRegistry } from "@/utils/registry";
 
 interface ModalDefProps<P = Record<string, unknown>> {
   id: string;
@@ -18,10 +18,18 @@ export function ModalDef<P = Record<string, unknown>>({
   component,
 }: ModalDefProps<P>) {
   useEffect(() => {
-    register(id, component);
+    ModalRegistry.getInstance().register(id, {
+      id,
+      comp: component as React.ComponentType<unknown>, // Store component for rendering
+      visible: false,
+      keepMounted: false,
+      props: {},
+      promise: null,
+      resolvedValue: undefined,
+    });
 
     return () => {
-      unregister(id);
+      ModalRegistry.getInstance().unregister(id);
     };
   }, [id, component]);
 

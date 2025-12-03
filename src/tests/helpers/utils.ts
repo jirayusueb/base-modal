@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import React from "react";
@@ -22,28 +23,37 @@ export const testUseModal = async (
   const resolved: unknown[] = [];
   let rejected: Error | null = null;
 
-  act(() => {
+  await act(async () => {
     modal.show(props).then((res = true) => resolved.push(res));
   });
 
-  act(() => {
+  await act(async () => {
     modal.show(props).then((res = true) => resolved.push(res));
   });
-  modalTextElement = screen.queryByText("HocTestModal");
-  expect(modalTextElement).toBeInTheDocument();
 
-  modalTextElement = screen.queryByText("bood");
-  expect(modalTextElement).toBeInTheDocument();
+  await waitFor(() => {
+    modalTextElement = screen.queryByText("HocTestModal");
+    expect(modalTextElement).toBeInTheDocument();
+  });
+
+  await waitFor(() => {
+    modalTextElement = screen.queryByText("bood");
+    expect(modalTextElement).toBeInTheDocument();
+  });
 
   act(() => {
     modal.resolve({ resolved: true });
     modal.hide();
   });
 
-  modalTextElement = screen.queryByText("HocTestModal");
+  // Check immediately (it should still be there animating)
+  modalTextElement = screen.getByText("HocTestModal");
   expect(modalTextElement).toBeInTheDocument();
 
-  await waitForElementToBeRemoved(screen.queryByText("HocTestModal"));
+  // Then wait for it to be removed, but only if it's still there
+  if (modalTextElement.isConnected) {
+    await waitForElementToBeRemoved(modalTextElement);
+  }
 
   expect(resolved).toEqual([{ resolved: true }, { resolved: true }]);
   expect(rejected).toBe(null);
@@ -54,12 +64,15 @@ export const testUseModal = async (
     });
   });
 
-  act(() => {
+  await act(async () => {
     modal.reject(new Error("sample error"));
     modal.hide();
   });
 
-  await waitForElementToBeRemoved(screen.queryByText("HocTestModal"));
+  const rejectModalTextElement = screen.queryByText("HocTestModal");
+  if (rejectModalTextElement && rejectModalTextElement.isConnected) {
+    await waitForElementToBeRemoved(rejectModalTextElement);
+  }
   expect(rejected).not.toBe(null);
   expect(rejected).toBeInstanceOf(Error);
   const error = rejected as unknown as Error;
@@ -82,13 +95,15 @@ export const testHelper = async (
     );
   });
 
+  const modalId = `helper-modal-${text}-${keepMounted ? 'kept' : 'temp'}`;
+
   render(
     React.createElement(
       Provider,
       null,
       React.createElement(HocModal, {
         keepMounted,
-        id: "helper-modal",
+        id: modalId,
         name: text,
       }),
     ),
@@ -102,7 +117,7 @@ export const testHelper = async (
   }
 
   act(() => {
-    BaseModal.show("helper-modal", { name: text });
+    BaseModal.show(modalId, { name: text });
   });
 
   modalTextElement = screen.queryByText(text);

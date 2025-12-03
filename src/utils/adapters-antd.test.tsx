@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -92,13 +93,19 @@ describe("antd modal", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("HocAntModal2")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("HocAntModal2")).toBeInTheDocument();
+    });
 
     // When: Cancel button is clicked
     fireEvent.click(screen.getByText("Cancel"));
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() => screen.queryByText("HocAntModal2"));
+    const element = screen.queryByText("HocAntModal2");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("HocAntModal2"));
+    }
   });
 
   it("test antd modal v5 with BaseModal.show() using component directly", async () => {
@@ -120,7 +127,10 @@ describe("antd modal", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("AntdModalV5Test")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("AntdModalV5Test")).toBeInTheDocument();
+    });
 
     // When: Close button is clicked
     act(() => {
@@ -128,9 +138,10 @@ describe("antd modal", () => {
     });
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("AntdModalV5Test"),
-    );
+    const element = screen.queryByText("AntdModalV5Test");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("AntdModalV5Test"));
+    }
   });
 });
 
@@ -281,7 +292,10 @@ describe("antd drawer", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("AntdDrawerV5Test")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("AntdDrawerV5Test")).toBeInTheDocument();
+    });
 
     // When: Close button is clicked
     act(() => {
@@ -289,8 +303,9 @@ describe("antd drawer", () => {
     });
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("AntdDrawerV5Test"),
-    );
+    const element = screen.queryByText("AntdDrawerV5Test");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("AntdDrawerV5Test"));
+    }
   });
 });

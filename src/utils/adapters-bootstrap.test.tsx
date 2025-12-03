@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -59,7 +60,10 @@ describe("bootstrap dialog", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("BootstrapDialogTest")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("BootstrapDialogTest")).toBeInTheDocument();
+    });
 
     // When: Close button is clicked
     act(() => {
@@ -67,8 +71,9 @@ describe("bootstrap dialog", () => {
     });
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("BootstrapDialogTest"),
-    );
+    const element = screen.queryByText("BootstrapDialogTest");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("BootstrapDialogTest"));
+    }
   });
 });

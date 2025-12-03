@@ -28,7 +28,7 @@ describe("global API", () => {
     let modalTextElement = screen.queryByText("HocTestModal");
     expect(modalTextElement).not.toBeInTheDocument();
 
-    act(() => {
+    await act(async () => {
       BaseModal.show(hocTestModalId);
     });
     modalTextElement = screen.queryByText("HocTestModal");
@@ -59,7 +59,7 @@ describe("global API", () => {
     let modalTextElement = screen.queryByText("HocTestModal");
     expect(modalTextElement).not.toBeInTheDocument();
 
-    act(() => {
+    await act(async () => {
       BaseModal.show(HocTestModal as ComponentType<{ name?: string }>);
     });
     modalTextElement = screen.queryByText("HocTestModal");
@@ -91,7 +91,7 @@ describe("global API", () => {
       BaseModal.show("invalidid");
     });
     expect(warnMsg).toBe(
-      "No modal found for id: invalidid. Please check the id or if it is registered or declared via JSX.",
+      "No modal component found for id: invalidid. Please register it with a component or declare it via JSX.",
     );
   });
 

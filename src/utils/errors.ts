@@ -56,10 +56,7 @@ export class ModalAlreadyExistsError extends BaseModalError {
  */
 export class ModalIdNotFoundError extends BaseModalError {
   constructor() {
-    super(
-      "No modal id found in BaseModal.useModal.",
-      "MODAL_ID_NOT_FOUND",
-    );
+    super("No modal id found in BaseModal.useModal.", "MODAL_ID_NOT_FOUND");
     this.name = "ModalIdNotFoundError";
   }
 }
@@ -89,4 +86,3 @@ export class DispatchNotInitializedError extends BaseModalError {
     this.name = "DispatchNotInitializedError";
   }
 }
-

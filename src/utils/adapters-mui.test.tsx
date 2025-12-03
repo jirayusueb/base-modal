@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -60,7 +61,10 @@ describe("mui dialog", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("MuiDialogTest")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("MuiDialogTest")).toBeInTheDocument();
+    });
 
     // When: Close button is clicked
     act(() => {
@@ -68,7 +72,10 @@ describe("mui dialog", () => {
     });
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() => screen.queryByText("MuiDialogTest"));
+    const element = screen.queryByText("MuiDialogTest");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("MuiDialogTest"));
+    }
   });
 
   it("test mui v5 dialog helper", async () => {
@@ -116,7 +123,10 @@ describe("mui dialog", () => {
     });
 
     // Then: Modal should be visible
-    expect(screen.queryByText("MuiDialogV5Test")).toBeInTheDocument();
+    // Then: Modal should be visible
+    await waitFor(() => {
+      expect(screen.queryByText("MuiDialogV5Test")).toBeInTheDocument();
+    });
 
     // When: Close button is clicked
     act(() => {
@@ -124,8 +134,9 @@ describe("mui dialog", () => {
     });
 
     // Then: Modal should be removed
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText("MuiDialogV5Test"),
-    );
+    const element = screen.queryByText("MuiDialogV5Test");
+    if (element) {
+      await waitForElementToBeRemoved(() => screen.queryByText("MuiDialogV5Test"));
+    }
   });
 });
